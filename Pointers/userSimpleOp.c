@@ -1,19 +1,17 @@
-#include <stdlib.h>
-#include <math.h>
-
+#include <stdio.h>
 int main(){
 
     double n;
     double p;
     printf("Please introduce the values to be multiplied:\n");
-    scanf("First value: ", &n);
-    scanf("Second value: ", &p);
-    multiplication(n, p);
+    scanf("%lf", &n);
+    scanf("%lf", &p);
+    mult(n, p);
     return 0;
-
+    
 }
 
-void multiplication(double n, double p){
+void mult(double n, double p){
     double x = n*p;
     printf("THE RESULT OF THE OPERATION IS = %lf", x);
 }
