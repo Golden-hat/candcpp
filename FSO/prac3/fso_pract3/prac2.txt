@@ -1,0 +1,6 @@
+Ejercicio 6.
+more /proc/cpuinfo
+Ejercicio 7.
+more /proc/cpuinfo | grep cache
+Ejercicio 12.
+cat /etc/passwd|grep root

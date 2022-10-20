@@ -1,0 +1,11 @@
+  PID TTY          TIME CMD
+  647 pts/1    00:00:00 bash
+  653 pts/1    00:00:00 bash
+  661 pts/1    00:00:00 awk
+  665 pts/1    00:00:00 bash
+  671 pts/1    00:00:00 bash
+  674 pts/1    00:00:00 awk
+ 1830 pts/1    00:00:00 bash
+ 2143 pts/1    00:00:00 bash
+ 2144 pts/1    00:00:00 bash
+ 2145 pts/1    00:00:00 ps
