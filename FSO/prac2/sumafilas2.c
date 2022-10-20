@@ -13,6 +13,7 @@ void suma_fila(struct FILA *pf) {
     float total = 0;
     for (int i = 0; i < TAM_FILA; i++) {
         total += pf->datos[i];
+        //the arrow operator allows us to 
     }
     pf->suma = total;
     printf("La suma final es %f\n", total);
