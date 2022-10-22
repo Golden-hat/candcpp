@@ -6,9 +6,9 @@ int main(){
         int val_return = fork();
         if(val_return == 0){
             printf("Hijo creado en iteración=%d\n",i);
+            sleep(20);
             exit(i);
         }
     }
-    sleep(10);
     exit(0);
 }

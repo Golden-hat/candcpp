@@ -9,6 +9,6 @@ int main(){
             exit(i);
         }
     }
-    sleep(10);
+    wait();
     exit(0);
 }
