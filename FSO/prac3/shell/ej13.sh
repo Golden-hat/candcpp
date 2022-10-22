@@ -1,5 +1,3 @@
-echo -e "PID PPID STATE COMMAND"
-for var in "$@"
-do
-echo -e $(awk '{print $1,$4,$3}' /proc/$var/stat) $(awk '{print $1}' /proc/$var/cmdline)
-done
+model=$(tr -d '\0' < /proc/device-tree/model)
+echo -e "PID\tPPID\tSTATE\tCOMMAND"
+echo -e "$(awk '{print $1,"\t"$4,"\t"$3"\t"}' /proc/$1/stat) $(awk '{print $1}' /proc/$1/cmdline)"

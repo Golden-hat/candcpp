@@ -1,6 +1,10 @@
-process0=$(ps>example0.txt)
-process1=$(awk '{if(NR!=1) print $1}' example0.txt>example1.txt)
-process2=$(awk 'BEGIN {ORS =" "} {print $1}' example1.txt>example2.txt)
-process3=$(cat example2.txt)
+processes=$(ps)
+processes=$(echo "$processes" | grep -v 'ps'| awk '{print $1}')
 
-echo $process0 $process1 $process2 $process3
+for i in $processes
+do
+    if test $i != "PID"
+    then
+        ./ej13.sh $i
+    fi
+done
