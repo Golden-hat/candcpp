@@ -17,13 +17,20 @@ int main() {
     p1 = cadena;     
     p2 = cadena2;
     int i = 0;
-    while (p1[i] != '\0') { 
-        if(p1[i] >= 'a' && p1[i] <= 'z') {
-            p2[i] = p1[i] -32;
+    while (*p1 != '\0') { 
+        if(*p1 >= 'a' && *p1<= 'z') {
+            *p2 = *p1 -32;
         }
-        i++;
+        else{
+            *p2=*p1;
+        }
+        p1++;
+        p2++;
     }
-    printf("%s", p2);
+    // Acordarse de poner el cero final en cadena2
+    *p2 = '\0';
+    // D) Sacar por consola la cadena2
+    printf("la frase es: %s\n", cadena2);
  
     // Acordarse de poner el cero final en cadena2 
     // D) Sacar por consola la cadena2. 
