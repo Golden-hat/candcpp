@@ -11,7 +11,6 @@ int main(){
     int final_state;
 
     for(i=0; i<MAX_PROC; i++){
-        printf("hello\n");
         int val_return= fork();
         if (val_return==0){
             printf("Son %ld created in iteration %d\n",(long) getpid(),i);
@@ -30,8 +29,6 @@ int main(){
         printf( "My son said %d\n",WEXITSTATUS(final_state));
         printf( "My son said %f\n", final_state/256);
     }
-    printf("hello\n");
-    sleep(10);
-    printf("hello\n");
+    sleep(1);
     exit(i);
 }

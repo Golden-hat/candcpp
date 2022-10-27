@@ -9,16 +9,14 @@ int main(){
         int val_return = fork();
         if(val_return == 0){
             printf("Hijo creado en iteración=%d\n",i);
-            sleep(20);
+            sleep(5+i);
             exit(i);
         }
     }
 
     for(int i = 1; i <= 5; i++){
-        wait(&status);
+        int ret = wait();
+        printf("Hijo esperado: %d\n", ret);
     }
-    
-    sleep(10);
     exit(0);
-    return 1;
 }
