@@ -20,7 +20,7 @@ int main(){
     }
 
     printf("Soy el proceso padre con PID: %d.\n", getpid());
-    
+
     int is = 1;
     while(wait(&status) > 0){
         printf("Mi %dº hijo ya ha terminado.\n", is);
