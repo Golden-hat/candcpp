@@ -22,6 +22,7 @@
 */
 
 long int V = 100;      // Valor inicial
+int llave = 0;
 
 /* 
    FUNCIONES AUXILIARES
@@ -51,14 +52,16 @@ void *agrega (void *argumento) {
 
   long int cont;
   long int aux;
-  
+  test_and_set(&llave);
   for (cont = 0; cont < REPETICIONES; cont = cont + 1) {
   
-
+    
       V = V + 1;
+    
       
 
   }
+  llave = 0;
   printf("-------> Fin AGREGA (V = %ld)\n", V);
   pthread_exit(0);
 }
@@ -67,13 +70,13 @@ void *resta (void *argumento) {
 
   long int cont;
   long int aux;
-  
+  test_and_set(&llave);
   for (cont = 0; cont < REPETICIONES; cont = cont + 1) {
-    
+      
         V = V - 1;
-
+      
   }
-  
+  llave = 0;
   printf("-------> Fin RESTA  (V = %ld)\n", V);
   pthread_exit(0);
 }

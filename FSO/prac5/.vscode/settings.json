@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.gpuAcceleration": "off",
+    "files.associations": {
+        "pthread.h": "c"
+    }
+}

@@ -22,6 +22,7 @@
 */
 
 long int V = 100;      // Valor inicial
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* 
    FUNCIONES AUXILIARES
@@ -54,8 +55,9 @@ void *agrega (void *argumento) {
   
   for (cont = 0; cont < REPETICIONES; cont = cont + 1) {
   
-
+    pthread_mutex_lock(&mutex);
       V = V + 1;
+    pthread_mutex_unlock(&mutex);
       
 
   }
@@ -70,7 +72,9 @@ void *resta (void *argumento) {
   
   for (cont = 0; cont < REPETICIONES; cont = cont + 1) {
     
-        V = V - 1;
+    pthread_mutex_lock(&mutex);
+      V = V - 1;
+    pthread_mutex_unlock(&mutex);
 
   }
   
