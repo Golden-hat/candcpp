@@ -105,7 +105,7 @@ int main (int argc, char *argv[]) {
   // EJERCICIO: Hilo principal debe espera a que las
   // tareas "agrega" y "resta" finalicen 
     pthread_join(hiloSuma, NULL);
-    pthread_join(hiloResta, NULL);  
+    pthread_join(hiloResta, NULL);
 
    
   // Fin del programa principal
