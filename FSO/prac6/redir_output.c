@@ -10,8 +10,8 @@ int main (int argc,char *argv[]) {
     int fd;
     char *arch = "output.txt";
     mode_t fd_mode = S_IRWXU;// file premissions
-
-    fd = open(arch,O_RDWR | O_CREAT,fd_mode);
+ 
+    fd = open(arch,O_RDWR | O_CREAT,fd_mode); //open create has no effect in this case, as file already exists.
     if (dup2(fd,STDOUT_FILENO) == -1) { 
         printf("Error calling dup2\n");
         exit(-1);
@@ -23,5 +23,4 @@ int main (int argc,char *argv[]) {
     close(fd);
     return(0);
 }
-
 

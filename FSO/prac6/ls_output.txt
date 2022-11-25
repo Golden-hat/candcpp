@@ -1,0 +1,17 @@
+total 172
+drwxr-xr-x. 1 yassinpellicer yassinpellicer   324 nov 25 16:11 .
+drwxr-xr-x. 1 yassinpellicer yassinpellicer    68 nov 25 13:24 ..
+-rw-r--r--. 1 yassinpellicer yassinpellicer  1399 nov 25 13:14 a_pipe.c
+-rwxr-xr-x. 1 yassinpellicer yassinpellicer 25136 nov 25 13:40 descriptor
+-rw-r--r--. 1 yassinpellicer yassinpellicer   588 nov 25 13:14 descriptor.c
+-rwxr-xr-x. 1 yassinpellicer yassinpellicer 25048 nov 25 13:37 descriptor_output
+-rw-r--r--. 1 yassinpellicer yassinpellicer   760 nov 25 13:37 descriptor_output.c
+-rwx------. 1 yassinpellicer yassinpellicer     0 nov 25 16:11 ls_output.txt
+-rwxr-xr-x. 1 yassinpellicer yassinpellicer 25376 nov 25 16:11 ls_redir
+-rw-r--r--. 1 yassinpellicer yassinpellicer   706 nov 25 16:11 ls_redir.c
+-rwx------. 1 yassinpellicer yassinpellicer    47 nov 25 13:50 messages.txt
+-rwx------. 1 yassinpellicer yassinpellicer    23 nov 25 16:05 output.txt
+-rwxr-xr-x. 1 yassinpellicer yassinpellicer 25328 nov 25 16:05 redir_output
+-rw-r--r--. 1 yassinpellicer yassinpellicer   685 nov 25 16:04 redir_output.c
+-rwxr-xr-x. 1 yassinpellicer yassinpellicer 25240 nov 25 13:50 share
+-rw-r--r--. 1 yassinpellicer yassinpellicer   693 nov 25 14:18 share_file.c
