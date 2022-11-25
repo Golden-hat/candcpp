@@ -7,16 +7,16 @@
 
 int main (int argc,char *argv[]) {
     int fd;
-    char *arch = "output.txt";
+    char *arch = "ls_output.txt";
     mode_t fd_mode = S_IRWXU;// file premissions
  
-    fd = open(arch,O_RDWR | O_CREAT,fd_mode); //open create has no effect in this case, as file already exists.
+    fd = open(arch,O_RDONLY | O_CREAT,fd_mode); //open create has no effect in this case, as file already exists.
     if (dup2(fd,STDOUT_FILENO) == -1) { 
         printf("Error calling dup2\n");
         exit(-1);
     }
 
-    fprintf(stdout,"out: Output redirected\n");
+    fprintf(stdout, execl("/bin/cat","cat",NULL));
     fprintf(stderr,"error: not redirected\n");
     fprintf(stderr,"Check file %s\n",arch);
     close(fd);

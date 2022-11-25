@@ -21,8 +21,11 @@ int main (int argc,char *argv[]) {
         pid=fork(); // Creates a child process
         if ((pid==0) && (i==0)) {
             // Child process redirects its output to the pipe
+            dup2(fildes[1], STDOUT_FILENO);
             
             // Child process closes pipe descriptors 
+            close(fildes[0]);
+            close(fildes[1]);
   
             // Child process changes its memory image
             if ( execvp("ls",arguments1)<0) { 
@@ -31,9 +34,12 @@ int main (int argc,char *argv[]) {
             }
         } else if ((pid==0) && (i==1)) {
             // Child process redirects its input to the pipe
+            dup2(fildes[0], STDIN_FILENO);
             
             // Child process closses pipe descriptors
-
+            close(fildes[0]);
+            close(fildes[1]);
+            
             // Child process changes its memory image
             if (execvp("wc",arguments2)<0) {
                 fprintf(stderr,"wc not found \n");
