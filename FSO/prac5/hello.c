@@ -9,7 +9,7 @@ void* Print (void* ptr) {
     char* men; 
     men =(char*) ptr;
     //   EXERCISE 1.b
-    // usleep(2000);
+    usleep(2000000);
     write (1, men, strlen (men));
     
 } 
@@ -22,5 +22,6 @@ int   main() {
     pthread_create (&thread2, &attrib, Print, "World \n");
     // EXERCISE 1.a
     pthread_join (thread1, NULL);
+    usleep(2000000);
     pthread_join (thread2, NULL);
 }
