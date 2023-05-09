@@ -3,6 +3,8 @@
         "types.h": "c",
         "stdlib.h": "c",
         "unistd.h": "c",
-        "wait.h": "c"
-    }
+        "wait.h": "c",
+        "iostream": "cpp"
+    },
+    "C_Cpp.default.compilerPath": "/usr/bin/gcc"
 }
