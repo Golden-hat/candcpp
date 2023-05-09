@@ -4,7 +4,7 @@
         "stdlib.h": "c",
         "unistd.h": "c",
         "wait.h": "c",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "ostream": "cpp"
     },
-    "C_Cpp.default.compilerPath": "/usr/bin/gcc"
 }
