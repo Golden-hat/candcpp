@@ -85,4 +85,4 @@ int main() {
     Tri.setHeight(88);
     cout << "The calculated area of the required rectangle: " << Rec.Area() << endl;
     cout << "The calculated area of the required triangle: " << Tri.Area() << endl;
-}
+}  
