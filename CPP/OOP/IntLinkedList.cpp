@@ -5,21 +5,26 @@ class LinkedList{
     public:
         Node* head;
 
-        LinkedList(int headElement){
+        LinkedList(){
             head = new Node();
-            head->data = headElement;
-            head->next = NULL;
         }
 
         void addElement(int n){
-            Node* elem = new Node();    
-            elem->data = n;
-            elem->next = head;
+            if(head->data == NULL){
+                head->data = n;
+                head->next = NULL;
+            }
+            else{
+                Node* elem = new Node();    
+                elem->data = n;
+                elem->next = head;
 
-            head = elem;
+                head = elem;
+            }
         }
 
         void printList(){
+            if(head->data == NULL){std::cout << "{}"; return;}
             Node* dummy = head;
             /*
                 Prints first character
@@ -47,8 +52,8 @@ class LinkedList{
 };
 
 int main(){
-    LinkedList list = LinkedList(4);
-    list.addElement(123);
+    LinkedList list = LinkedList();
+    list.addElement(0);
     list.printList();
 
     return 0;
