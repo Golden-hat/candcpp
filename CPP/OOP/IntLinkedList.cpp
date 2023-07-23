@@ -6,11 +6,12 @@ class LinkedList{
         Node* head;
 
         LinkedList(){
-            head = new Node();
+            head = NULL;
         }
 
-        void addElement(int n){
-            if(head->data == NULL){
+        void add(int n){
+            if(head == nullptr){
+                head = new Node();
                 head->data = n;
                 head->next = NULL;
             }
@@ -23,8 +24,71 @@ class LinkedList{
             }
         }
 
+        void addMultiple(int t[], int size){
+            for(int i = 0; i < size; i++){
+                if(head == nullptr){
+                head = new Node();
+                head->data = t[i];
+                head->next = NULL;
+                }
+                else{
+                    Node* elem = new Node();    
+                    elem->data = t[i];
+                    elem->next = head;
+
+                    head = elem;
+                }
+            }
+        }
+
+        Node* find(int n){
+            Node* dummy = head;
+            while(dummy != NULL){
+                if(dummy->data == n){
+                    return dummy;
+                }
+                dummy = dummy->next;
+            }
+            std::cout << "The element ("<< n <<") does not seem to exist in the list." << std::endl;
+            return NULL;
+        }
+
+        void remove(int n){
+            Node* dummy = head;
+            Node* previous = NULL;
+            while(dummy != NULL){
+                if(dummy->data == n){
+                    if(previous == nullptr){removeHead(); return;}
+                    previous->next = previous->next->next;
+                    delete dummy;
+                    return;
+                }
+                previous = dummy;
+                dummy = dummy->next;
+            }
+            std::cout << "The element ("<< n <<") does not seem to exist in the list." << std::endl;
+        }
+
+        void removeHead(){
+            if(head != nullptr){
+                Node* headC = head;
+                head = head->next;
+                delete headC;
+            }
+        }
+
+        void movetoHead(int n){
+            Node* dummy = find(n);
+            Node* copy = new Node();
+            copy->data = dummy->data;
+            
+            remove(dummy->data);
+            copy->next = head;
+            head = copy;
+        }
+
         void printList(){
-            if(head->data == NULL){std::cout << "{}"; return;}
+            if(head == nullptr){std::cout << "{}"; return;}
             Node* dummy = head;
             /*
                 Prints first character
@@ -52,8 +116,13 @@ class LinkedList{
 };
 
 int main(){
-    LinkedList list = LinkedList();
-    list.addElement(0);
+    LinkedList list;
+    int array[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    list.addMultiple(array, 20);
+    list.movetoHead(19);
+    list.movetoHead(10);
+    list.remove(3);
+    list.remove(14514);
     list.printList();
 
     return 0;
