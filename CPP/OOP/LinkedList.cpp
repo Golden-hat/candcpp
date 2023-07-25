@@ -1,25 +1,32 @@
 #include <iostream>
-#include "IntNode.cpp"
+#include "Node.cpp"
 
+template<class T>
 class LinkedList{
-    public:
-        Node* head;
+    private:
         int size;
+    public:
+        Node<T>* head;
 
         LinkedList(){
+            size = 0;
+            head = NULL;
+        }
+
+        void reset(){
             head = NULL;
             size = 0;
         }
 
-        void add(int n){
+        void add(T n){
             if(head == nullptr){
-                head = new Node();
+                head = new Node<T>;
                 head->data = n;
                 head->next = NULL;
                 size++;
             }
             else{
-                Node* elem = new Node();    
+                Node<T>* elem = new Node<T>;    
                 elem->data = n;
                 elem->next = head;
 
@@ -28,11 +35,29 @@ class LinkedList{
             }
         }
 
+        void addMultiple(T t[], int s){
+            for(int i = 0; i < s; i++){
+                if(head == nullptr){
+                    head = new Node<T>;
+                    head->data = t[i];
+                    head->next = NULL;
+                }
+                else{
+                    Node<T>* elem = new Node<T>;    
+                    elem->data = t[i];
+                    elem->next = head;
+
+                    head = elem;
+                }
+                size++;
+            }
+        }
+
         void sortAscending(){
-            LinkedList l;
+            LinkedList<T> l;
             int storeSize = size;
             while(size != 0){
-                Node* dummy = head;
+                Node<T>* dummy = head;
                 int n = dummy->data;
                 
                 while(dummy != NULL){
@@ -49,10 +74,10 @@ class LinkedList{
         }
 
         void sortDescending(){
-            LinkedList l;
+            LinkedList<T> l;
             int storeSize = size;
             while(size != 0){
-                Node* dummy = head;
+                Node<T>* dummy = head;
                 int n = dummy->data;
                 while(dummy != NULL){
                     if(n >= dummy->data){
@@ -67,26 +92,8 @@ class LinkedList{
             size = storeSize;
         }
 
-        void addMultiple(int t[], int s){
-            for(int i = 0; i < s; i++){
-                if(head == nullptr){
-                    head = new Node();
-                    head->data = t[i];
-                    head->next = NULL;
-                }
-                else{
-                    Node* elem = new Node();    
-                    elem->data = t[i];
-                    elem->next = head;
-
-                    head = elem;
-                }
-                size++;
-            }
-        }
-
-        Node* find(int n){
-            Node* dummy = head;
+        Node<T>* find(T n){
+            Node<T>* dummy = head;
             while(dummy != NULL){
                 if(dummy->data == n){
                     return dummy;
@@ -97,9 +104,9 @@ class LinkedList{
             return NULL;
         }
 
-        void remove(int n){
-            Node* dummy = head;
-            Node* previous = NULL;
+        void remove(T n){
+            Node<T>* dummy = head;
+            Node<T>* previous = NULL;
             while(dummy != NULL){
                 if(dummy->data == n){
                     if(previous == nullptr){removeHead(); return;}
@@ -113,25 +120,20 @@ class LinkedList{
             }
             std::cout << "The element ("<< n <<") does not seem to exist in the list." << std::endl;
         }
-
-        void reset(){
-            head = NULL;
-            size = 0;
-        }
-
+        
         void removeHead(){
             if(head != nullptr){
-                Node* headC = head;
+                Node<T>* headC = head;
                 head = head->next;
                 delete headC;
                 size--;
             }
         }
 
-        void movetoHead(int n){
-            if(find(n)!=NULL){
-                Node* dummy = find(n);
-                Node* copy = new Node();
+        void movetoHead(T n){
+            if(find(n) != NULL){
+                Node<T>* dummy = find(n);
+                Node<T>* copy = new Node<T>;
                 copy->data = dummy->data;
                 
                 remove(dummy->data);
@@ -142,7 +144,7 @@ class LinkedList{
 
         void printList(){
             if(head == nullptr){std::cout << "{}" <<std::endl; return;}
-            Node* dummy = head;
+            Node<T>* dummy = head;
             /*
                 Prints first character
                 in a {1, ... fashion
@@ -167,17 +169,3 @@ class LinkedList{
             std::cout << dummy->data << "}" << std::endl;
         }
 };
-
-int main(){
-    LinkedList list;
-    int array[] = {9,1,7,5,6,90,123,52,6,53,74567,78,4,7456,743,62};
-    list.addMultiple(array, 16);
-    list.printList();
-    list.sortDescending();
-    list.printList();
-    list.add(3);
-    list.remove(74567);
-    list.sortAscending();
-    list.printList();
-    return 0;
-}

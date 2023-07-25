@@ -1,7 +1,6 @@
-#include <iostream>
-
+template<class T>
 class Node{
     public:
-        int data;
+        T data;
         Node* next;
 };
