@@ -186,7 +186,7 @@ class LinkedList{
 
         void printListObjects(){
             int n = 1;
-            if(head == nullptr){std::cout << "{}" <<std::endl; return;}
+            if(head == nullptr){std::cout << "NO ELEMENTS." <<std::endl; return;}
             Node<T>* dummy = head;
             /*
                 Prints first character
@@ -194,7 +194,7 @@ class LinkedList{
 
                 If there is only ONE element, it just prints out that one and returns
             */
-            if(dummy->next == NULL){std::cout << n << dummy->data->toString() << std::endl; return;}
+            if(dummy->next == NULL){std::cout << n << ". "+dummy->data->toString() << std::endl; return;}
             std::cout << n << ". "+dummy->data->toString() << std::endl;
             dummy = dummy->next;
             n++;

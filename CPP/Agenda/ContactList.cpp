@@ -34,8 +34,27 @@ class ContactList{
             std::cin >> telephone;
 
             Contact* contact = new Contact(name, surname, email, telephone);
-            contact->toString();
-            contactList->add(contact);
+            if(findContact(contact) == NULL)
+                contactList->add(contact);
+        }
+
+        void removeFromList(){
+            std::cout << "Insert the name and the surname of the new contact to remove:" << std::endl;
+            std::cout << "Name: ";
+
+            std::string name;
+            std::cin >> name;
+
+            std::cout << "Surname: ";
+            std::string surname;
+            std::cin.ignore();
+            std::getline(std::cin, surname);
+
+            if(findContact(name, surname) != NULL){
+                contactList->remove(findContact(name, surname)->data);
+                std::cout << "\nContact removed successfully." << std::endl;
+            }
+            else{std::cout << "\nSuch Contact does not exist." << std::endl;}
         }
 
         void printList(){
@@ -47,7 +66,8 @@ class ContactList{
             for(int i = 0; i < contactList->getSize(); i++){
                 Node<Contact*>* node = contactList->findIndex(i);
                 MyFile << node->data->getName()+","+node->data->getSurname()+","+
-                    node->data->getEmail()+","+std::to_string(node->data->getphoneNumber()) << std::endl;
+                    node->data->getEmail()+","+std::to_string(node->data->getphoneNumber()) 
+                    << std::endl;
             }
             MyFile.close();
         }
@@ -58,7 +78,6 @@ class ContactList{
             std::ifstream MyFile("contactFile.txt");
             while(std::getline(MyFile, text)){
                 adv_tokenizer(text, ",",wordsReturn);
-                std::cout << text << std::endl;
                 Contact* contact = new Contact(wordsReturn[0], wordsReturn[1], wordsReturn[2], stoul(wordsReturn[3]));
                 contactList->add(contact);
             }
@@ -75,12 +94,28 @@ class ContactList{
                 t[i++] = word;
             }
         }
-};
 
-int main(){
-    ContactList list;
-    list.loadFromFile();
-    list.addToList();
-    list.printList();
-    list.writeToFile();
-}
+        Node<Contact*>* findContact(Contact* contact){
+            for(int i = 0; i < contactList->getSize(); i++){
+                Node<Contact*>* node = contactList->findIndex(i);
+                if(node->data->getName() == contact->getName() &&
+                node->data->getEmail() == contact->getEmail() && 
+                node->data->getphoneNumber() == contact->getphoneNumber() && 
+                node->data->getSurname() == contact->getSurname()){
+                    return node;
+                }
+            }
+            return NULL;
+        }
+
+        Node<Contact*>* findContact(std::string name, std::string surname){
+            for(int i = 0; i < contactList->getSize(); i++){
+                Node<Contact*>* node = contactList->findIndex(i);
+                if(node->data->getName() == name &&
+                node->data->getSurname() == surname ){
+                    return node;
+                }
+            }
+            return NULL;
+        }
+};
