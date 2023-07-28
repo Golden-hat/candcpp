@@ -1,2 +1,3 @@
 Yassin,Pellicer,yassinpellicerlamla@gmail.com,603786942
 Soumya,Lamla Boutiyba,lambsomb@gmail.com,637393301
+Juan,Pellicer Amat,jpell@gmail.com,601939201
