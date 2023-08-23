@@ -77,7 +77,7 @@ class ContactList{
             std::string wordsReturn[4];
             std::ifstream MyFile("contactFile.txt");
             while(std::getline(MyFile, text)){
-                adv_tokenizer(text, ",",wordsReturn);
+                adv_tokenizer(text, ",", wordsReturn);
                 Contact* contact = new Contact(wordsReturn[0], wordsReturn[1], wordsReturn[2], stoul(wordsReturn[3]));
                 contactList->add(contact);
             }

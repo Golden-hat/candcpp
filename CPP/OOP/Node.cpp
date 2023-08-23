@@ -3,4 +3,4 @@ class Node{
     public:
         T data;
         Node* next;
-};
+};k
