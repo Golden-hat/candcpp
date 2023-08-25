@@ -8,9 +8,83 @@ const int WIDTH = 800;
 const int HEIGHT = 800;
 int SCORE = 0;
 bool GAME_OVER = false;
+bool retryCheck = true;
 std::string toggle;
 
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Snake!");
+
+void gameOver(){
+    sf::Text text;
+
+    sf::Font font;
+    if (!font.loadFromFile("LiberationMono-Regular.ttf"))
+    {
+        // error...
+    }
+
+    // select the font
+    text.setFont(font); // font is a sf::Font
+
+    // set the string to display
+    text.setString("GAME OVER");
+
+    // set the character size
+    text.setCharacterSize(50); // in pixels, not points!
+
+    // set the color
+    text.setFillColor(sf::Color::White);
+
+    // set the text style
+    text.setStyle(sf::Text::Bold);
+
+    sf::FloatRect textRect = text.getLocalBounds();
+    text.setOrigin(textRect.left + textRect.width/2.0f, textRect.top  + textRect.height/2.0f);
+    text.setPosition(sf::Vector2f(WIDTH/2.0f, HEIGHT/2.0f));
+    text.setPosition(sf::Vector2f(400,75));
+
+    sf::Text subtitle;
+    subtitle.setFont(font);
+    subtitle.setString("Press X to quit the game or R to retry.");
+    subtitle.setCharacterSize(20);
+
+    sf::FloatRect subRect = subtitle.getLocalBounds();
+    subtitle.setOrigin(subRect.left + subRect.width/2.0f, subRect.top  + subRect.height/2.0f);
+    subtitle.setPosition(sf::Vector2f(400,200));
+
+    sf::Text score;
+    score.setFont(font);
+    score.setString("Score: "+std::to_string(SCORE));
+    score.setCharacterSize(20);
+
+    sf::FloatRect scoreRect = score.getLocalBounds();
+    score.setOrigin(scoreRect.left + scoreRect.width/2.0f, scoreRect.top  + scoreRect.height/2.0f);
+    score.setPosition(sf::Vector2f(WIDTH/2.0f, HEIGHT/3.0f));
+
+    window.clear();
+    window.draw(text);
+    window.draw(subtitle);
+    window.draw(score);
+    window.display();
+
+    while(retryCheck){
+
+        sf::Event event;
+            while (window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed){
+                    SCORE = 0; GAME_OVER = true; retryCheck = false;
+                    window.close();
+                }
+            }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+            SCORE = 0; GAME_OVER = false; retryCheck = false; toggle="";}
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
+            SCORE = 0; GAME_OVER = true; retryCheck = false;
+            window.close();
+        }
+    }
+}
 
 struct BodyPart{
     public:
@@ -96,7 +170,7 @@ class Snake{
         Node<BodyPart>* aux = body.getHead();
         while(aux!= nullptr && aux != getHeadOfSnake()){
             if(getHeadOfSnake()->data.x == aux->data.x && getHeadOfSnake()->data.y == aux->data.y){
-                window.close();
+                GAME_OVER = true;
                 return true;
             }
             aux = aux->next;
@@ -119,16 +193,19 @@ class Board{
 
     public:
     void render(){
+        retryCheck = true;
         Snake s;
-        while (window.isOpen())
+        while (window.isOpen() && !GAME_OVER)
         {
             window.setFramerateLimit(13);
 
             sf::Event event;
             while (window.pollEvent(event))
             {
-                if (event.type == sf::Event::Closed)
+                if (event.type == sf::Event::Closed){
+                    SCORE = 0; GAME_OVER = true; retryCheck = false;
                     window.close();
+                }
             }
 
             //rendering is done inside here
@@ -141,6 +218,7 @@ class Board{
             s.drawBody();
             s.tp();
             s.collision();
+            drawScore();
 
             window.display();
         }
@@ -162,38 +240,50 @@ class Board{
         window.draw(fruit);
     }
 
-    void recalculate(Snake s){
+    void recalculate(){
         srand(time(0));
         
         fruitX = (rand()%(WIDTH/SIZE_OF_BODY))*40;
         fruitY = (rand()%(HEIGHT/SIZE_OF_BODY))*40;
-
-        Node<BodyPart>* aux = s.getHeadOfSnake();
-        bool validSpawn = true;
-        while(aux!= nullptr && validSpawn){
-            if(aux->data.x == fruitX && aux->data.y == fruitY){
-                validSpawn = false;
-                fruitX = (rand()%(WIDTH/SIZE_OF_BODY))*40;
-                fruitY = (rand()%(HEIGHT/SIZE_OF_BODY))*40;
-            }
-            else{
-                validSpawn = true;
-                return;
-            }
-        }
     }
 
     void scoreUp(Snake s){
         if(s.getHeadOfSnake()->data.x == fruitX && s.getHeadOfSnake()->data.y == fruitY){
             SCORE++;
-            recalculate(s);
+            recalculate();
         }
+    }
+
+    void drawScore(){
+         sf::Text text;
+
+        sf::Font font;
+        if (!font.loadFromFile("LiberationMono-Regular.ttf"))
+        {
+            // error...
+        }
+
+        // select the font
+        text.setFont(font); // font is a sf::Font
+
+        sf::Text score;
+        score.setFont(font);
+        score.setString("Score: "+std::to_string(SCORE));
+        score.setCharacterSize(20);
+        score.setPosition(sf::Vector2f(25, 25));
+
+        window.draw(score);
     }
 };
 
 int main()
-{
-    Board b;
-    b.render();
+{   
+    do{
+        Board b;
+        b.render();
+        gameOver();
+    }while(!GAME_OVER);
+    window.close();
+
     return 0;
 }
