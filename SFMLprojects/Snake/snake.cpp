@@ -229,8 +229,6 @@ class Board{
 
         fruitX = (rand()%(WIDTH/SIZE_OF_BODY))*40;
         fruitY = (rand()%(HEIGHT/SIZE_OF_BODY))*40;
-
-        std::cout << fruitX << ", " << fruitY << std::endl;
     }
 
     void drawFruit(){
