@@ -122,6 +122,25 @@ class ball{
         window.draw(ballShape);
     }
 
+    void animation(){
+        for(int i = 1; i < 3000; i += 40){
+            sf::CircleShape circle = sf::CircleShape(i);
+            int x = positionX() - i;
+            int y = positionY() - i;
+            circle.setPosition(x, y);
+            circle.setFillColor(sf::Color::White);
+            window.draw(circle);
+            window.display();
+
+            sf::Event event;
+            while (window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    window.close();
+            }
+        }   
+    }
+
     void ballMovement(player* p1, player* p2){
         ballShape.move(directionX, directionY);
         if(ballShape.getPosition().y >= HEIGHT || ballShape.getPosition().y <= 0){
@@ -132,13 +151,13 @@ class ball{
             p1->updateScore();
             playerScored = true;
             TRIGGER_UP, TRIGGER_DOWN = false;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            animation();
         }
         if(ballShape.getPosition().x <= - WIDTH_BALL){
             p2->updateScore();
             playerScored = true;
             TRIGGER_UP, TRIGGER_DOWN = false;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            animation();
         }
     }
 
