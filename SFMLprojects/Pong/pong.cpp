@@ -20,6 +20,7 @@ const int WIDTH_BALL = 10;
 const int X_VEL = 10;
 
 bool GAME_OVER = false;
+bool backToMenu = false;
 bool playerScored = true;
 
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "PONG");
@@ -135,8 +136,10 @@ class ball{
             sf::Event event;
             while (window.pollEvent(event))
             {
-                if (event.type == sf::Event::Closed)
+                if (event.type == sf::Event::Closed){
+                    GAME_OVER = true;
                     window.close();
+                }
             }
         }   
     }
@@ -282,8 +285,10 @@ class menu{
             sf::Event event;
             while (window.pollEvent(event))
             {
-                if (event.type == sf::Event::Closed)
+                if (event.type == sf::Event::Closed){
+                    GAME_OVER = true;
                     window.close();
+                }
             }   
         }
     }
@@ -378,11 +383,93 @@ class board{
             sf::Event event;
             while (window.pollEvent(event))
             {
-                if (event.type == sf::Event::Closed)
+                if (event.type == sf::Event::Closed){
+                    GAME_OVER = true;
                     window.close();
+                }
             }   
         }
     }
+
+   void pauseMenu(){
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::P)){
+            bool pause = true;
+
+            sf::Text text;
+            sf::Text gamemodeSelect;
+
+            sf::Font font;
+            if (!font.loadFromFile("LiberationMono-Regular.ttf"))
+            {
+                // error...
+            }
+            text.setFont(font);
+
+            text.setString("PAUSE");
+
+            text.setCharacterSize(100);
+
+            text.setFillColor(sf::Color::White);
+
+            sf::FloatRect textRect1 = text.getLocalBounds();
+            text.setOrigin(textRect1.left + textRect1.width/2.0f, textRect1.top  + textRect1.height/2.0f);
+            text.setPosition(sf::Vector2f(WIDTH/2.0f, HEIGHT/2.0f - 100));
+
+            gamemodeSelect.setFont(font);
+
+            gamemodeSelect.setString("Press X to exit the game, R to resume it, or B to go back to the menu.");
+
+            gamemodeSelect.setCharacterSize(15); // in pixels, not points!
+
+            // set the color
+            gamemodeSelect.setFillColor(sf::Color::White);
+
+            sf::FloatRect textRect2 = gamemodeSelect.getLocalBounds();
+            gamemodeSelect.setOrigin(textRect2.left + textRect2.width/2.0f, textRect2.top  + textRect2.height/2.0f);
+            gamemodeSelect.setPosition(sf::Vector2f(WIDTH/2.0f, HEIGHT/2.0f + 100));
+            
+            window.draw(text);
+            window.draw(gamemodeSelect);
+            window.display();
+
+            while(pause){
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::R)){
+                    pause = false;
+                }
+
+                sf::Event event;
+                while (window.pollEvent(event))
+                {
+                    if (event.type == sf::Event::Closed){
+                        pause = false;
+                        GAME_OVER = true;
+                        window.close();
+                    }
+                }
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::X)){
+                    GAME_OVER = true;
+                    pause = false;
+                    window.close();
+                }
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::B)){
+                    pause = false;
+                    backToMenu = true;
+
+                    b.resetBallPosition();
+                    p1.resetPlayerPosition();
+                    p2.resetPlayerPosition();
+
+                    p1.score = 0;
+                    p2.score = 0;
+
+                    playerScored = true;
+                }
+            }
+        }
+    }
+
 
     void singlePlayerLoop(){
         if(playerScored){
@@ -414,6 +501,8 @@ class board{
         b.checkCollision(p1);
         b.checkCollision(p2);
         b.ballMovement(&p1, &p2);
+
+        pauseMenu();
     }
 
     void localVSLoop(){
@@ -446,19 +535,23 @@ class board{
         b.checkCollision(p1);
         b.checkCollision(p2);
         b.ballMovement(&p1, &p2);
+
+        pauseMenu();
     }
 
     board(bool singlePlayer){
 
-        while(window.isOpen())
+        while(window.isOpen() && !backToMenu)
         {
             window.setFramerateLimit(60);
 
             sf::Event event;
             while (window.pollEvent(event))
             {
-                if (event.type == sf::Event::Closed)
+                if (event.type == sf::Event::Closed){
                     window.close();
+                    GAME_OVER = true;
+                }
             }
 
             window.clear();
@@ -471,12 +564,17 @@ class board{
 
             window.display();
         }
+
+        backToMenu = false;
     }
 };
 
 int main(){
-    menu m;
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    board b(m.getGamemode());
+    while(!GAME_OVER){
+        window.clear();
+        menu m;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        board b(m.getGamemode());
+    }
     return 0;
 };
