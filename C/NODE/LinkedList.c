@@ -14,12 +14,6 @@ void printNode(node* n){
     printf("%d",n->x);
 }
 
-void initializeList(linkedList* l){
-    node* head = (node*) malloc(sizeof(node));
-    head = NULL;
-    head->next = NULL;
-}
-
 void printList(linkedList* l){
     node* aux = l->head;
     if(aux == NULL){printf("{}"); return;}
@@ -44,6 +38,14 @@ void add(linkedList* l, int val) {
     l->head = new_node;
 }
 
+void removeHead(linkedList* l){
+    if(l->head != NULL){
+        node* aux = l->head->next;
+        free(l->head);
+        l->head = aux;
+    }
+}
+
 int main(){
     /*
         The question of why one cannot make a linked list with
@@ -52,7 +54,7 @@ int main(){
         
         The basic idea of a linked list is to link nodes together based on their memory address. 
         If each node is created on the stack then those nodes will be deleted after
-        hey go out of scope, so even if the user keeps pointers to their 
+        they go out of scope, so even if the user keeps pointers to their 
         memory address it is not safe to assume that they won’t be overwritten by something else.
 
         ...
@@ -62,11 +64,13 @@ int main(){
         list in a separate function.
     */
 
-    linkedList* l = (linkedList*) malloc(sizeof(linkedList)); 
+    linkedList* l = (linkedList*) malloc(sizeof(linkedList));
     add(l, 1);
-    add(l, 1423);
-    add(l, 112);
-    add(l, 4);
+    add(l, 2);
+    removeHead(l);
+    add(l,1123);
+    removeHead(l);
+    add(l,12541);
     printList(l);
     
     return 0;
