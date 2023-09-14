@@ -38,12 +38,51 @@ void add(linkedList* l, int val) {
     l->head = new_node;
 }
 
+node* find(linkedList* l, int v){
+    node* aux = l->head;
+    while(aux != NULL){
+        if(aux->x == v){return aux;}
+        aux = aux->next;
+    }
+    return NULL;
+}
+
+void insert(linkedList* l, int v, int s){
+    node* elem = find(l, s);
+    
+    if(elem != NULL){
+        node* aux = elem->next;
+
+        node* new_node = (node*) malloc(sizeof(node));
+        new_node->x = v;
+        new_node->next = aux;
+        elem->next = new_node;
+    }
+}
+
 void removeHead(linkedList* l){
     if(l->head != NULL){
         node* aux = l->head->next;
         free(l->head);
         l->head = aux;
     }
+}
+
+void deleteElement(linkedList* l, int v){
+    node* aux = l->head;
+    node* prev;
+
+    while(aux != NULL){
+        if(aux->x == v){break;}
+        prev = aux;
+        aux = aux->next;
+    }
+
+    if(aux == NULL){return;}
+    
+    node* nextAux = aux->next;
+    free(aux);
+    prev->next = nextAux;
 }
 
 int main(){
@@ -54,7 +93,7 @@ int main(){
         
         The basic idea of a linked list is to link nodes together based on their memory address. 
         If each node is created on the stack then those nodes will be deleted after
-        they go out of scope, so even if the user keeps pointers to their 
+        hey go out of scope, so even if the user keeps pointers to their 
         memory address it is not safe to assume that they won’t be overwritten by something else.
 
         ...
@@ -64,13 +103,10 @@ int main(){
         list in a separate function.
     */
 
-    linkedList* l = (linkedList*) malloc(sizeof(linkedList));
+    linkedList* l = (linkedList*) malloc(sizeof(linkedList)); 
     add(l, 1);
-    add(l, 2);
-    removeHead(l);
-    add(l,1123);
-    removeHead(l);
-    add(l,12541);
+    insert(l, 15, 1);
+    deleteElement(l, 15);
     printList(l);
     
     return 0;
