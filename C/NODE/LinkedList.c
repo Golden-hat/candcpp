@@ -107,6 +107,10 @@ int main(){
     add(l, 1);
     insert(l, 15, 1);
     deleteElement(l, 15);
+    insert(l ,412, 1);
+    removeHead(l);
+    removeHead(l);
+    removeHead(l);
     printList(l);
     
     return 0;
