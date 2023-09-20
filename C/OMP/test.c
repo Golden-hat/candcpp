@@ -12,7 +12,7 @@ int main(void)
                 #pragma omp for reduction(+:serie)
                 for(i = 1;i <= LIMIT;i++)
                 serie += 1.0/i;
-        }
+        }      
 
         printf("Valor de la Serie: %.5f\n",serie);
 return 0;
