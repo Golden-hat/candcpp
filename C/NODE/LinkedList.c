@@ -107,6 +107,9 @@ int main(){
     add(l, 1);
     insert(l, 15, 1);
     deleteElement(l, 15);
+    insert(l ,412, 1);
+    add(l, 31);
+    add(l, 54);
     printList(l);
     
     return 0;
