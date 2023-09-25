@@ -67,14 +67,44 @@ class figures{
     }
 };
 
+class tile{
+    public:
+    int x;
+    int y;
+    sf::Color color;
+    bool enablePhysics;
+
+    tile(int x, int y, sf::Color color, bool enablePhysics){
+        this->x = x;
+        this->y = y;
+        this->color = color;
+        this->enablePhysics = enablePhysics;
+    }
+
+    void drawTile(){
+        sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(TILE_SIZE, TILE_SIZE));
+        block.setPosition(x, y);
+        block.setFillColor(color);
+
+        window.draw(block);
+    }
+};
+
 class board{
     public:
-    int posX = 120;
-    int posY = 240;
+    float prevX;
+    float prevY;
+
+    float posX = WIDTH/2 - 2*TILE_SIZE;
+    float posY = -160;
+    sf::Clock clockDown;
+    sf::Clock clockSides;
+    sf::Clock clockRotate;
 
     figures f;
-
     int currentFigure = f.selectRandomFigure();
+
+    std::vector<tile*> wall;
 
     void renderGrid(){
         for(int i = 0; i < WIDTH; i += TILE_SIZE){
@@ -91,11 +121,37 @@ class board{
         }
     }
 
+    void bringNewFigure(){
+        prevY = posY;
+
+        currentFigure = f.selectRandomFigure();
+        posY = -160;
+    }
+
+    void moveFigureDown(){
+        prevY = posY;
+
+        if(clockDown.getElapsedTime().asSeconds() >= 0.3){
+            posY += TILE_SIZE;
+            clockDown.restart();
+        }
+    }
+
+    void moveFigureDownFaster(){
+        prevY = posY;
+
+        if(clockDown.getElapsedTime().asSeconds() >= 0.075){
+            posY += TILE_SIZE;
+            clockDown.restart();
+        }
+    }
+
     void moveCurrentFigure(){
         bool checkLeft = true;
         bool checkRight = true;
 
-        posY += 10;
+        prevX = posX;
+        prevY = posY;
 
         for(int i = 0; i < 4; i++){
             if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX <= 0){
@@ -108,17 +164,81 @@ class board{
             }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && checkLeft)
-        {
-            posX -= TILE_SIZE;
+        if(clockSides.getElapsedTime().asSeconds() >= 0.1){
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && checkLeft)
+            {
+                posX -= TILE_SIZE;
+                clockSides.restart();
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && checkRight)
+            {
+                posX += TILE_SIZE;
+                clockSides.restart();
+            }
         }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && checkRight)
-        {
-            posX += TILE_SIZE;
+
+        if(clockRotate.getElapsedTime().asSeconds() >= 0.2){
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+            {
+                f.rotateFigure(currentFigure);
+                clockRotate.restart();
+            }
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         {
-            f.rotateFigure(currentFigure);
+            moveFigureDownFaster();
+        }
+    }
+
+    void checkCollision(){
+        for(int i = 0; i < 4; i++){
+            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY >= HEIGHT - TILE_SIZE){
+                addFigureToWall();
+                break;
+            }
+            for(int j = 0; j < wall.size(); j++){
+                if(wall.at(j)->enablePhysics == true && 
+                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x &&
+                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y ){
+                    posX = prevX;
+                    posY = prevY;
+                    addFigureToWall();
+                    break;
+                }
+            }   
+        }
+
+    }
+
+    void addFigureToWall(){
+        for(int i = 0; i < 4; i++){
+            int X = f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX;
+            int Y = f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY;
+
+            tile* t = new tile(X, Y, sf::Color::White, false);
+            wall.push_back(t);
+        }
+
+        for(int i = 0; i < wall.size(); i++){
+            int ex = wall.at(i)->x;
+            int ey = wall.at(i)->y - TILE_SIZE;
+            for(int j = 0; j < wall.size(); j++){
+                if(ey == wall.at(j)->y + TILE_SIZE && ex == wall.at(j)->x){
+                    wall.at(i)->enablePhysics = false;
+                    wall.at(i)->color = sf::Color::Red;
+                    break;
+                }
+                else{wall.at(i)->enablePhysics = true;}
+            }
+        }
+
+        bringNewFigure();
+    }
+
+    void printWall(){
+        for(int i = 0; i < wall.size(); i++){
+            wall.at(i)->drawTile();
         }
     }
 
@@ -126,8 +246,6 @@ class board{
         f.rotateFigure(currentFigure);
         while(window.isOpen())
         {
-            window.setFramerateLimit(15);
-
             sf::Event event;
             while (window.pollEvent(event))
             {
@@ -139,7 +257,13 @@ class board{
             window.clear();
 
             f.drawFigure(currentFigure, posX, posY);
+            printWall();
+
             moveCurrentFigure();
+            moveFigureDown();
+
+            checkCollision();
+
             renderGrid();
             
             window.display();
@@ -148,6 +272,7 @@ class board{
 };
 
 int main(){
+    window.setFramerateLimit(60);
     board b;
     return 0;
 }
