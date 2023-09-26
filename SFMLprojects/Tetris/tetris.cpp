@@ -74,11 +74,10 @@ class tile{
     sf::Color color;
     bool enablePhysics;
 
-    tile(int x, int y, sf::Color color, bool enablePhysics){
+    tile(int x, int y, sf::Color color){
         this->x = x;
         this->y = y;
         this->color = color;
-        this->enablePhysics = enablePhysics;
     }
 
     void drawTile(){
@@ -105,6 +104,7 @@ class board{
     int currentFigure = f.selectRandomFigure();
 
     std::vector<tile*> wall;
+    std::vector<tile*> physics;
 
     void renderGrid(){
         for(int i = 0; i < WIDTH; i += TILE_SIZE){
@@ -123,13 +123,65 @@ class board{
 
     void bringNewFigure(){
         prevY = posY;
+        prevX = posX;
 
         currentFigure = f.selectRandomFigure();
         posY = -160;
+        posX = WIDTH/2 - 2*TILE_SIZE;
+    }
+
+    int checkCollision(){
+        int forbid = 0;
+
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < wall.size(); j++){
+                if(
+                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x + TILE_SIZE
+                && f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y                
+                ){
+                    forbid = 1;
+                    break;
+                }
+                if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x - TILE_SIZE
+                && f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y 
+                ){
+                    forbid = 2;
+                    break;
+                }
+                if(
+                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x + TILE_SIZE 
+                && f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x - TILE_SIZE
+                && f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y                
+                ){
+                    forbid = 3;
+                    break;
+                }
+            }
+
+            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY >= HEIGHT){
+                posX = prevX;
+                posY = prevY;
+                addFigureToWall();
+                break;
+            }
+
+            for(int j = 0; j < physics.size(); j++){
+                if(
+                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == physics.at(j)->x &&
+                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == physics.at(j)->y + TILE_SIZE 
+                ){
+                    posX = prevX;
+                    posY = prevY;
+                    addFigureToWall();
+                    break;
+                }
+            }
+        }
+
+        return forbid;
     }
 
     void moveFigureDown(){
-        prevY = posY;
 
         if(clockDown.getElapsedTime().asSeconds() >= 0.3){
             posY += TILE_SIZE;
@@ -138,15 +190,14 @@ class board{
     }
 
     void moveFigureDownFaster(){
-        prevY = posY;
 
-        if(clockDown.getElapsedTime().asSeconds() >= 0.075){
+        if(clockDown.getElapsedTime().asSeconds() >= 0.1){
             posY += TILE_SIZE;
             clockDown.restart();
         }
     }
 
-    void moveCurrentFigure(){
+    void moveCurrentFigure(int forbid){
         bool checkLeft = true;
         bool checkRight = true;
 
@@ -165,12 +216,12 @@ class board{
         }
 
         if(clockSides.getElapsedTime().asSeconds() >= 0.1){
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && checkLeft)
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && checkLeft && forbid != 1 && forbid != 3)
             {
                 posX -= TILE_SIZE;
                 clockSides.restart();
             }
-            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && checkRight)
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && checkRight && forbid != 2 && forbid != 3)
             {
                 posX += TILE_SIZE;
                 clockSides.restart();
@@ -178,7 +229,7 @@ class board{
         }
 
         if(clockRotate.getElapsedTime().asSeconds() >= 0.2){
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && forbid != 3)
             {
                 f.rotateFigure(currentFigure);
                 clockRotate.restart();
@@ -191,45 +242,29 @@ class board{
         }
     }
 
-    void checkCollision(){
-        for(int i = 0; i < 4; i++){
-            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY >= HEIGHT - TILE_SIZE){
-                addFigureToWall();
-                break;
-            }
-            for(int j = 0; j < wall.size(); j++){
-                if(wall.at(j)->enablePhysics == true && 
-                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x &&
-                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y ){
-                    posX = prevX;
-                    posY = prevY;
-                    addFigureToWall();
-                    break;
-                }
-            }   
-        }
-
-    }
-
     void addFigureToWall(){
         for(int i = 0; i < 4; i++){
             int X = f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX;
             int Y = f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY;
 
-            tile* t = new tile(X, Y, sf::Color::White, false);
+            tile* t = new tile(X, Y, sf::Color::White);
             wall.push_back(t);
         }
 
         for(int i = 0; i < wall.size(); i++){
             int ex = wall.at(i)->x;
             int ey = wall.at(i)->y - TILE_SIZE;
+            bool found = false;
+
             for(int j = 0; j < wall.size(); j++){
-                if(ey == wall.at(j)->y + TILE_SIZE && ex == wall.at(j)->x){
-                    wall.at(i)->enablePhysics = false;
-                    wall.at(i)->color = sf::Color::Red;
+                if(ey == wall.at(j)->y && ex == wall.at(j)->x){
+                    found = true;
                     break;
                 }
-                else{wall.at(i)->enablePhysics = true;}
+            }
+            if(!found){
+                tile* t = new tile(ex, ey, sf::Color::Red);
+                physics.push_back(t);
             }
         }
 
@@ -259,10 +294,9 @@ class board{
             f.drawFigure(currentFigure, posX, posY);
             printWall();
 
-            moveCurrentFigure();
+            int t = checkCollision();
+            moveCurrentFigure(t);
             moveFigureDown();
-
-            checkCollision();
 
             renderGrid();
             
