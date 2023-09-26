@@ -197,7 +197,15 @@ class board{
     }
 
     void checkRotation(){
-        
+        for(int i = 0; i < 4; i++){
+            if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX <= 0){
+                posX+= 40;
+            }
+            else if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX >= WIDTH - TILE_SIZE){
+                posY-= 40;
+            }
+        }
+
     }
 
     void moveCurrentFigure(int forbid){
@@ -235,6 +243,7 @@ class board{
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && forbid != 3)
             {
                 f.rotateFigure(currentFigure);
+                checkRotation();
                 clockRotate.restart();
             }
         }
