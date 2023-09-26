@@ -40,9 +40,32 @@ class figures{
     };
 
     void drawFigure(int index, int posX, int posY){
+        sf::Color color;
+        switch(index){
+            case 0:
+                color = sf::Color::Blue;
+            break;
+            case 1:
+                color = sf::Color::Red;
+            break;
+            case 2:
+                color = sf::Color::Yellow;
+            break;
+            case 3:
+                color = sf::Color::Green;
+            break;
+            case 4:
+                color = sf::Color::White;
+            break;
+            case 5:
+                color = sf::Color::Cyan;
+            break;
+            case 6:
+                color = sf::Color::Magenta;
+        }
         for(int i = 0; i < 4; i++){
             sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(TILE_SIZE, TILE_SIZE));
-            block.setFillColor(sf::Color::White);
+            block.setFillColor(color);
 
             block.setPosition(figures.at(index).at(i).at(0) * TILE_SIZE + posX, 
                               figures.at(index).at(i).at(1) * TILE_SIZE + posY);
@@ -94,7 +117,7 @@ class board{
     float prevX;
     float prevY;
 
-    float posX = WIDTH/2 - 2*TILE_SIZE;
+    float posX = WIDTH/2 - TILE_SIZE;
     float posY = -160;
     sf::Clock clockDown;
     sf::Clock clockSides;
@@ -158,9 +181,7 @@ class board{
                 }
             }
 
-            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY >= HEIGHT){
-                posX = prevX;
-                posY = prevY;
+            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY >= HEIGHT - TILE_SIZE){
                 addFigureToWall();
                 break;
             }
@@ -168,9 +189,8 @@ class board{
             for(int j = 0; j < physics.size(); j++){
                 if(
                 f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == physics.at(j)->x &&
-                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == physics.at(j)->y + TILE_SIZE 
+                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == physics.at(j)->y
                 ){
-                    posY = prevY;
                     addFigureToWall();
                     break;
                 }
@@ -202,7 +222,18 @@ class board{
                 posX+= 40;
             }
             else if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX >= WIDTH - TILE_SIZE){
-                posY-= 40;
+                posX-= 40;
+            }
+
+            for(int j = 0; j < wall.size(); j++){
+                if(
+                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x &&
+                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y
+                ){
+                    posX = prevX;
+                    posY = posY - 200;
+                    break;
+                }
             }
         }
 
@@ -240,7 +271,7 @@ class board{
         }
 
         if(clockRotate.getElapsedTime().asSeconds() >= 0.2){
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && forbid != 3)
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             {
                 f.rotateFigure(currentFigure);
                 checkRotation();
@@ -253,13 +284,38 @@ class board{
             moveFigureDownFaster();
         }
     }
-
+    
     void addFigureToWall(){
         for(int i = 0; i < 4; i++){
             int X = f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX;
             int Y = f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY;
-
-            tile* t = new tile(X, Y, sf::Color::White);
+            
+            sf::Color color;
+            switch (currentFigure)
+            {
+                case 0:
+                    color = sf::Color::Blue;
+                break;
+                case 1:
+                    color = sf::Color::Red;
+                break;
+                case 2:
+                    color = sf::Color::Yellow;
+                break;
+                case 3:
+                    color = sf::Color::Green;
+                break;
+                case 4:
+                    color = sf::Color::White;
+                break;
+                case 5:
+                    color = sf::Color::Cyan;
+                break;
+                case 6:
+                    color = sf::Color::Magenta;
+            }
+            
+            tile* t = new tile(X, Y, color);
             wall.push_back(t);
         }
 
