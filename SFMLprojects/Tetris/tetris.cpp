@@ -126,7 +126,7 @@ class board{
         prevX = posX;
 
         currentFigure = f.selectRandomFigure();
-        posY = -160;
+        posY = -200;
         posX = WIDTH/2 - 2*TILE_SIZE;
     }
 
@@ -170,7 +170,6 @@ class board{
                 f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == physics.at(j)->x &&
                 f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == physics.at(j)->y + TILE_SIZE 
                 ){
-                    posX = prevX;
                     posY = prevY;
                     addFigureToWall();
                     break;
@@ -195,6 +194,10 @@ class board{
             posY += TILE_SIZE;
             clockDown.restart();
         }
+    }
+
+    void checkRotation(){
+        
     }
 
     void moveCurrentFigure(int forbid){
