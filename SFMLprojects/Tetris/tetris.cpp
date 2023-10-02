@@ -10,10 +10,14 @@ const int HEIGHT = 800;
 
 const int TILE_SIZE = 40;
 
+const int horizontal = WIDTH/TILE_SIZE;
+const int vertical = HEIGHT/TILE_SIZE;
+
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "PONG");
 
 class figures{
     public:
+    
     std::vector<std::vector<std::vector<int>>> figures = 
     {
         {
@@ -94,31 +98,35 @@ class tile{
     public:
     int x;
     int y;
+    bool active;
     sf::Color color;
-    bool enablePhysics;
 
-    tile(int x, int y, sf::Color color){
+    tile(int x, int y, sf::Color color, bool active){
         this->x = x;
         this->y = y;
         this->color = color;
+        this->active = active;
     }
 
     void drawTile(){
         sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(TILE_SIZE, TILE_SIZE));
+ 
         block.setPosition(x, y);
         block.setFillColor(color);
 
         window.draw(block);
     }
+
 };
 
 class board{
     public:
-    float prevX;
-    float prevY;
+    float prevX = 0;
+    float prevY = 0;
 
     float posX = WIDTH/2 - TILE_SIZE;
-    float posY = -160;
+    float posY = -200;
+
     sf::Clock clockDown;
     sf::Clock clockSides;
     sf::Clock clockRotate;
@@ -126,8 +134,8 @@ class board{
     figures f;
     int currentFigure = f.selectRandomFigure();
 
-    std::vector<tile*> wall;
-    std::vector<tile*> physics;
+    std::vector<tile> physics;
+    std::vector<std::vector<tile*>*> wall;
 
     void renderGrid(){
         for(int i = 0; i < WIDTH; i += TILE_SIZE){
@@ -144,64 +152,117 @@ class board{
         }
     }
 
-    void bringNewFigure(){
-        prevY = posY;
+    void savePosition(){
         prevX = posX;
+        prevY = posY;
+    }
 
+    void restorePosition(){
+        posX = prevX;
+        posY = prevY;
+    }
+
+    void bringNewFigure(){
         currentFigure = f.selectRandomFigure();
         posY = -200;
         posX = WIDTH/2 - 2*TILE_SIZE;
     }
 
-    int checkCollision(){
-        int forbid = 0;
+    void initializeWall(){
+        for(int j = 0; j < vertical; j++){
+            std::vector<tile*>* v1 = new std::vector<tile*>;
+            wall.push_back(v1);
+            for(int i = 0; i < horizontal; i++){
+                tile* t = new tile(i*TILE_SIZE, j*TILE_SIZE, sf::Color::Transparent, false);
+                wall.at(j)->push_back(t);
+            }
+        }
+    }
+
+    void getPhysics(){
+        physics.clear();
+        for(int i = 0; i < horizontal; i++){
+            bool toggle = false;
+            for(int j = 0; j < vertical; j++){
+                if (wall.at(j)->at(i)->active && !toggle){
+                    tile t(wall.at(j)->at(i)->x, wall.at(j)->at(i)->y - TILE_SIZE, sf::Color::Red, false);
+                    physics.push_back(t);
+                    toggle = true;
+                }
+                if(wall.at(j)->at(i)->active == false){
+                    toggle = false;
+                }
+            }
+        }
+    }
+
+    void checkCollision(){
 
         for(int i = 0; i < 4; i++){
-            for(int j = 0; j < wall.size(); j++){
-                if(
-                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x + TILE_SIZE
-                && f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y                
-                ){
-                    forbid = 1;
-                    break;
-                }
-                if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x - TILE_SIZE
-                && f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y 
-                ){
-                    forbid = 2;
-                    break;
-                }
-                if(
-                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x + TILE_SIZE 
-                && f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x - TILE_SIZE
-                && f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y                
-                ){
-                    forbid = 3;
-                    break;
-                }
+            if(
+                (WIDTH == f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX) ||
+                (0 > f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX)       
+            )
+            {
+                posX = prevX;
             }
 
-            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY >= HEIGHT - TILE_SIZE){
-                addFigureToWall();
-                break;
-            }
-
-            for(int j = 0; j < physics.size(); j++){
-                if(
-                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == physics.at(j)->x &&
-                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == physics.at(j)->y
-                ){
-                    addFigureToWall();
-                    break;
+            for(int j = 0; j < horizontal; j++){
+                for(int k = 0; k < vertical; k++){
+                    if(
+                    (wall.at(k)->at(j)->active == true) &&
+                    (wall.at(k)->at(j)->x == f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX) &&
+                    (wall.at(k)->at(j)->y == f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY)
+                    )
+                    {
+                        posX = prevX;
+                        return;
+                    }
                 }
             }
         }
 
-        return forbid;
+        for(int i = 0; i < 4; i++){
+            
+            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == HEIGHT){
+                restorePosition();
+                addFigureToWall();
+                return;
+            }
+
+            
+            for(int j = 0; j < physics.size(); j++){
+                if(
+                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == physics.at(j).x &&
+                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == physics.at(j).y
+                ){
+                    addFigureToWall();
+                    return;
+                }
+            }
+       }
+    }
+
+    void line(){
+        for(int j = 0; j < vertical; j++){
+            int counter = 0;
+            for(int i = 0; i < horizontal; i++){
+                if (wall.at(j)->at(i)->active){
+                    counter++;
+                }
+            }
+            if(counter == 10){
+                for(int z = j; z < vertical - j){
+                    
+                }
+                for(int i = 0; i < horizontal; i++){
+                    wall.at(j)->at(i)->y = sf::Color::Red;
+                }       
+            }
+        }
     }
 
     void moveFigureDown(){
-
         if(clockDown.getElapsedTime().asSeconds() >= 0.3){
             posY += TILE_SIZE;
             clockDown.restart();
@@ -209,61 +270,41 @@ class board{
     }
 
     void moveFigureDownFaster(){
-
         if(clockDown.getElapsedTime().asSeconds() >= 0.1){
             posY += TILE_SIZE;
             clockDown.restart();
         }
     }
 
-    void checkRotation(){
+    void valid(){
         for(int i = 0; i < 4; i++){
-            if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX <= 0){
-                posX+= 40;
-            }
-            else if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX >= WIDTH - TILE_SIZE){
-                posX-= 40;
-            }
-
-            for(int j = 0; j < wall.size(); j++){
-                if(
-                f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX == wall.at(j)->x &&
-                f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == wall.at(j)->y
-                ){
-                    posX = prevX;
-                    posY = posY - 200;
-                    break;
+            for(int j = 0; j < horizontal; j++){
+                for(int k = 0; k < vertical; k++){
+                    if(
+                    (wall.at(k)->at(j)->active == true) &&
+                    (wall.at(k)->at(j)->x == f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX) &&
+                    (wall.at(k)->at(j)->y == f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY)
+                    )
+                    {
+                        f.rotateFigure(currentFigure);
+                        f.rotateFigure(currentFigure);
+                        f.rotateFigure(currentFigure);
+                        return;
+                    }
                 }
             }
-        }
-
+        }       
     }
 
-    void moveCurrentFigure(int forbid){
-        bool checkLeft = true;
-        bool checkRight = true;
-
-        prevX = posX;
-        prevY = posY;
-
-        for(int i = 0; i < 4; i++){
-            if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX <= 0){
-                checkLeft = false;
-                break;
-            }
-            else if(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX >= WIDTH - TILE_SIZE){
-                checkRight = false;
-                break;
-            }
-        }
+    void moveCurrentFigure(){
 
         if(clockSides.getElapsedTime().asSeconds() >= 0.1){
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && checkLeft && forbid != 1 && forbid != 3)
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             {
                 posX -= TILE_SIZE;
                 clockSides.restart();
             }
-            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && checkRight && forbid != 2 && forbid != 3)
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
             {
                 posX += TILE_SIZE;
                 clockSides.restart();
@@ -274,7 +315,7 @@ class board{
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             {
                 f.rotateFigure(currentFigure);
-                checkRotation();
+                valid();
                 clockRotate.restart();
             }
         }
@@ -286,67 +327,59 @@ class board{
     }
     
     void addFigureToWall(){
-        for(int i = 0; i < 4; i++){
-            int X = f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX;
-            int Y = f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY;
-            
-            sf::Color color;
-            switch (currentFigure)
-            {
-                case 0:
-                    color = sf::Color::Blue;
-                break;
-                case 1:
-                    color = sf::Color::Red;
-                break;
-                case 2:
-                    color = sf::Color::Yellow;
-                break;
-                case 3:
-                    color = sf::Color::Green;
-                break;
-                case 4:
-                    color = sf::Color::White;
-                break;
-                case 5:
-                    color = sf::Color::Cyan;
-                break;
-                case 6:
-                    color = sf::Color::Magenta;
-            }
-            
-            tile* t = new tile(X, Y, color);
-            wall.push_back(t);
+        sf::Color color;
+        switch (currentFigure)
+        {
+            case 0:
+                color = sf::Color::Blue;
+            break;
+            case 1:
+                color = sf::Color::Red;
+            break;
+            case 2:
+                color = sf::Color::Yellow;
+            break;
+            case 3:
+                color = sf::Color::Green;
+            break;
+            case 4:
+                color = sf::Color::White;
+            break;
+            case 5:
+                color = sf::Color::Cyan;
+            break;
+            case 6:
+                color = sf::Color::Magenta;
         }
 
-        for(int i = 0; i < wall.size(); i++){
-            int ex = wall.at(i)->x;
-            int ey = wall.at(i)->y - TILE_SIZE;
-            bool found = false;
+        for(int i = 0; i < 4; i++){
+            int arrayX = f.figures.at(currentFigure).at(i).at(0) + posX/TILE_SIZE;
+            int arrayY = f.figures.at(currentFigure).at(i).at(1) + posY/TILE_SIZE;
 
-            for(int j = 0; j < wall.size(); j++){
-                if(ey == wall.at(j)->y && ex == wall.at(j)->x){
-                    found = true;
-                    break;
-                }
-            }
-            if(!found){
-                tile* t = new tile(ex, ey, sf::Color::Red);
-                physics.push_back(t);
-            }
+            wall.at(arrayY)->at(arrayX)->active = true;
+            wall.at(arrayY)->at(arrayX)->color = color;
         }
 
         bringNewFigure();
     }
 
     void printWall(){
-        for(int i = 0; i < wall.size(); i++){
-            wall.at(i)->drawTile();
+        for(int i = 0; i < horizontal; i++){
+            for(int j = 0; j < vertical; j++){
+                if(wall.at(j)->at(i)->active == true) wall.at(j)->at(i)->drawTile();
+            }
+        }
+    }
+
+    void printPhysics(){
+        for(int i = 0; i < physics.size(); i++){
+            physics.at(i).drawTile();
         }
     }
 
     board(){
         f.rotateFigure(currentFigure);
+        initializeWall();
         while(window.isOpen())
         {
             sf::Event event;
@@ -356,16 +389,20 @@ class board{
                     window.close();
                 }
             }
+            getPhysics();
 
             window.clear();
-
+            savePosition();
             f.drawFigure(currentFigure, posX, posY);
-            printWall();
 
-            int t = checkCollision();
-            moveCurrentFigure(t);
+            moveCurrentFigure();
+            checkCollision(); 
             moveFigureDown();
+            line();
 
+            checkCollision();
+
+            printWall();
             renderGrid();
             
             window.display();
@@ -374,7 +411,7 @@ class board{
 };
 
 int main(){
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(120);
     board b;
     return 0;
 }
