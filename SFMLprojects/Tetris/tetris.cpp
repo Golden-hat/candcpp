@@ -5,15 +5,15 @@
 #include <chrono>
 #include <thread>
 
-const int WIDTH = 400;
-const int HEIGHT = 800;
+const int WIDTH = 200;
+const int HEIGHT = 520;
 
-const int TILE_SIZE = 40;
+const int TILE_SIZE = 20;
 
 const int horizontal = WIDTH/TILE_SIZE;
 const int vertical = HEIGHT/TILE_SIZE;
 
-sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "PONG");
+sf::RenderWindow window(sf::VideoMode(WIDTH+200, HEIGHT+200), "Tetris");
 
 class figures{
     public:
@@ -45,27 +45,28 @@ class figures{
 
     void drawFigure(int index, int posX, int posY){
         sf::Color color;
-        switch(index){
+        switch (index)
+        {
             case 0:
-                color = sf::Color::Blue;
+                color = sf::Color(154, 214, 170);
             break;
             case 1:
-                color = sf::Color::Red;
+                color = sf::Color(157, 154, 214);
             break;
             case 2:
-                color = sf::Color::Yellow;
+                color = sf::Color(126, 247, 99);
             break;
             case 3:
-                color = sf::Color::Green;
+                color = sf::Color(255, 163, 77);
             break;
             case 4:
-                color = sf::Color::White;
+                color = sf::Color(101, 101, 247);
             break;
             case 5:
-                color = sf::Color::Cyan;
+                color = sf::Color(61, 226, 245);
             break;
             case 6:
-                color = sf::Color::Magenta;
+                color = sf::Color(250, 117, 206);
         }
         for(int i = 0; i < 4; i++){
             sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(TILE_SIZE, TILE_SIZE));
@@ -125,11 +126,12 @@ class board{
     float prevY = 0;
 
     float posX = WIDTH/2 - TILE_SIZE;
-    float posY = -200;
+    float posY = -80;
 
     sf::Clock clockDown;
     sf::Clock clockSides;
     sf::Clock clockRotate;
+    sf::Clock clockHardDrop;
 
     figures f;
     int currentFigure = f.selectRandomFigure();
@@ -164,7 +166,7 @@ class board{
 
     void bringNewFigure(){
         currentFigure = f.selectRandomFigure();
-        posY = -200;
+        posY = -80;
         posX = WIDTH/2 - 2*TILE_SIZE;
     }
 
@@ -244,20 +246,31 @@ class board{
     }
 
     void line(){
-        for(int j = 0; j < vertical; j++){
+        for(int j = vertical-1; j >= 0; j--){
             int counter = 0;
             for(int i = 0; i < horizontal; i++){
                 if (wall.at(j)->at(i)->active){
                     counter++;
                 }
             }
-            if(counter == 10){
-                for(int z = j; z < vertical - j){
-                    
-                }
+            if(counter == WIDTH/TILE_SIZE){
                 for(int i = 0; i < horizontal; i++){
-                    wall.at(j)->at(i)->y = sf::Color::Red;
-                }       
+                    wall.at(j)->at(i)->color = sf::Color::Transparent;
+                    wall.at(j)->at(i)->active = false;
+                }
+
+                for(int z = j; z >= 1; z--){
+                    for(int i = 0; i < horizontal; i++){
+                        sf::Color copyC =  wall.at(z)->at(i)->color;
+                        bool copyA =  wall.at(z)->at(i)->active;
+
+                        wall.at(z)->at(i)->color = wall.at(z-1)->at(i)->color; 
+                        wall.at(z)->at(i)->active = wall.at(z-1)->at(i)->active; 
+
+                        wall.at(z-1)->at(i)->color = copyC;
+                        wall.at(z-1)->at(i)->active = copyA;
+                    }
+                }
             }
         }
     }
@@ -276,8 +289,49 @@ class board{
         }
     }
 
+    void hardDrop(){
+        if(clockHardDrop.getElapsedTime().asSeconds() <= 0.3){return;}
+        int least = 10000000;
+
+        for(int i = 0; i < 4; i ++){
+            int arrayX = f.figures.at(currentFigure).at(i).at(0) + posX/TILE_SIZE;
+            int arrayY = f.figures.at(currentFigure).at(i).at(1) + posY/TILE_SIZE;
+
+            if(arrayY < 0){return;}
+
+            for(arrayY; arrayY < vertical; arrayY++){
+                if(wall.at(arrayY)->at(arrayX)->active){
+                    int diff = wall.at(arrayY)->at(arrayX)->y - 
+                    (f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY);
+
+                    if(diff < least) least = diff;
+                }
+            }
+        }
+
+        if(least == 10000000){
+            for(int i = 0; i < 4; i++){
+                int diff = HEIGHT - (f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY);
+                if(diff < least) least = diff;
+            }
+        }
+
+        posY += least - TILE_SIZE;
+        clockHardDrop.restart();
+    }
+
     void valid(){
         for(int i = 0; i < 4; i++){
+
+            if((WIDTH == f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX))
+            {
+                posX -= 40;
+            }
+            else if(0 > f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX)
+            {
+                posX += 40;
+            }
+
             for(int j = 0; j < horizontal; j++){
                 for(int k = 0; k < vertical; k++){
                     if(
@@ -324,6 +378,11 @@ class board{
         {
             moveFigureDownFaster();
         }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            hardDrop();
+        } 
     }
     
     void addFigureToWall(){
@@ -331,25 +390,25 @@ class board{
         switch (currentFigure)
         {
             case 0:
-                color = sf::Color::Blue;
+                color = sf::Color(154, 214, 170);
             break;
             case 1:
-                color = sf::Color::Red;
+                color = sf::Color(157, 154, 214);
             break;
             case 2:
-                color = sf::Color::Yellow;
+                color = sf::Color(126, 247, 99);
             break;
             case 3:
-                color = sf::Color::Green;
+                color = sf::Color(255, 163, 77);
             break;
             case 4:
-                color = sf::Color::White;
+                color = sf::Color(101, 101, 247);
             break;
             case 5:
-                color = sf::Color::Cyan;
+                color = sf::Color(61, 226, 245);
             break;
             case 6:
-                color = sf::Color::Magenta;
+                color = sf::Color(250, 117, 206);
         }
 
         for(int i = 0; i < 4; i++){
@@ -358,6 +417,9 @@ class board{
 
             wall.at(arrayY)->at(arrayX)->active = true;
             wall.at(arrayY)->at(arrayX)->color = color;
+
+            wall.at(arrayY)->at(arrayX)->x = f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX;
+            wall.at(arrayY)->at(arrayX)->y = f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY;
         }
 
         bringNewFigure();
@@ -374,6 +436,71 @@ class board{
     void printPhysics(){
         for(int i = 0; i < physics.size(); i++){
             physics.at(i).drawTile();
+        }
+    }
+
+    void printShadow(){
+        int least = 10000000;
+
+        for(int i = 0; i < 4; i ++){
+            int arrayX = f.figures.at(currentFigure).at(i).at(0) + posX/TILE_SIZE;
+            int arrayY = f.figures.at(currentFigure).at(i).at(1) + posY/TILE_SIZE;
+
+            if(arrayY < 0){return ;}
+
+            for(arrayY; arrayY < vertical; arrayY++){
+                if(wall.at(arrayY)->at(arrayX)->active){
+                    int diff = wall.at(arrayY)->at(arrayX)->y - 
+                    (f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY);
+
+                    if(diff < least) least = diff;
+                }
+            }
+        }
+
+        for(int i = 0; i < 4; i++){
+            int diff = HEIGHT - (f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY);
+            if(diff < least) least = diff;
+        }
+
+        int shadowY = posY + least - TILE_SIZE;
+
+        sf::Color color;
+        switch (currentFigure)
+        {
+            case 0:
+                color = sf::Color(154, 214, 170);
+            break;
+            case 1:
+                color = sf::Color(157, 154, 214);
+            break;
+            case 2:
+                color = sf::Color(126, 247, 99);
+            break;
+            case 3:
+                color = sf::Color(255, 163, 77);
+            break;
+            case 4:
+                color = sf::Color(101, 101, 247);
+            break;
+            case 5:
+                color = sf::Color(61, 226, 245);
+            break;
+            case 6:
+                color = sf::Color(250, 117, 206);
+        }
+
+        for(int i = 0; i < 4; i++){
+            sf::RectangleShape tile = sf::RectangleShape(sf::Vector2f(TILE_SIZE-2, TILE_SIZE-2));
+            tile.setOutlineColor(color);
+            tile.setOutlineThickness(2.0f);
+
+            tile.setFillColor(sf::Color::Transparent);
+
+            tile.setPosition(f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX, 
+            f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + shadowY);
+
+            window.draw(tile);
         }
     }
 
@@ -398,11 +525,11 @@ class board{
             moveCurrentFigure();
             checkCollision(); 
             moveFigureDown();
-            line();
-
             checkCollision();
 
+            line();
             printWall();
+            printShadow();
             renderGrid();
             
             window.display();
@@ -411,6 +538,9 @@ class board{
 };
 
 int main(){
+    sf::Vector2u size = window.getSize();
+    sf::View view(sf::Vector2f(100, 280), sf::Vector2f(size.x, size.y));
+    window.setView(view);
     window.setFramerateLimit(120);
     board b;
     return 0;
