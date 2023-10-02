@@ -13,7 +13,7 @@ const int TILE_SIZE = 20;
 const int horizontal = WIDTH/TILE_SIZE;
 const int vertical = HEIGHT/TILE_SIZE;
 
-sf::RenderWindow window(sf::VideoMode(WIDTH+200, HEIGHT+200), "Tetris");
+sf::RenderWindow window(sf::VideoMode(WIDTH+300, HEIGHT+200), "Tetris");
 
 class figures{
     public:
@@ -120,10 +120,51 @@ class tile{
 
 };
 
+class menu{
+    public:
+    void overlay(int score){
+        sf::Text text;
+
+        sf::Font font;
+        if (!font.loadFromFile("LiberationMono-Regular.ttf"))
+        {
+            // error...
+        }
+        text.setFont(font);
+        text.setString("Score: "+std::to_string(score));
+        text.setCharacterSize(20);
+        text.setFillColor(sf::Color::White);
+
+        sf::FloatRect textRect1 = text.getLocalBounds();
+        text.setOrigin(textRect1.left + textRect1.width/2.0f, textRect1.top  + textRect1.height/2.0f);
+        text.setPosition(sf::Vector2f(WIDTH/2.0f - 55, HEIGHT/2.0f + 300));
+
+        window.draw(text);
+    }
+
+    void rectangles(){
+        sf::RectangleShape leftBig = sf::RectangleShape(sf::Vector2f(WIDTH, HEIGHT));
+        leftBig.setPosition(WIDTH + 25, 0);
+        leftBig.setOutlineColor(sf::Color::White);
+        leftBig.setOutlineThickness(2.0f);
+        leftBig.setFillColor(sf::Color::Transparent);
+        window.draw(leftBig);
+
+        sf::RectangleShape leftBottom = sf::RectangleShape(sf::Vector2f(WIDTH, HEIGHT-400));
+        leftBottom.setPosition(WIDTH + 25, 400);
+        leftBottom.setOutlineColor(sf::Color::White);
+        leftBottom.setOutlineThickness(2.0f);
+        leftBottom.setFillColor(sf::Color::Transparent);
+        window.draw(leftBottom);
+        
+    }
+};
+
 class board{
     public:
     float prevX = 0;
     float prevY = 0;
+    int score = 0;
 
     float posX = WIDTH/2 - TILE_SIZE;
     float posY = -80;
@@ -131,7 +172,6 @@ class board{
     sf::Clock clockDown;
     sf::Clock clockSides;
     sf::Clock clockRotate;
-    sf::Clock clockHardDrop;
 
     figures f;
     int currentFigure = f.selectRandomFigure();
@@ -199,7 +239,6 @@ class board{
     }
 
     void checkCollision(){
-
         for(int i = 0; i < 4; i++){
             if(
                 (WIDTH == f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX) ||
@@ -226,8 +265,7 @@ class board{
 
         for(int i = 0; i < 4; i++){
             
-            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY == HEIGHT){
-                restorePosition();
+            if(f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY + TILE_SIZE == HEIGHT){
                 addFigureToWall();
                 return;
             }
@@ -254,6 +292,7 @@ class board{
                 }
             }
             if(counter == WIDTH/TILE_SIZE){
+                score++;
                 for(int i = 0; i < horizontal; i++){
                     wall.at(j)->at(i)->color = sf::Color::Transparent;
                     wall.at(j)->at(i)->active = false;
@@ -290,14 +329,20 @@ class board{
     }
 
     void hardDrop(){
-        if(clockHardDrop.getElapsedTime().asSeconds() <= 0.3){return;}
         int least = 10000000;
+
+        for(int i = 0; i < 4; i++){
+            int arrayY = f.figures.at(currentFigure).at(i).at(1) + posY/TILE_SIZE;
+            int arrayX = f.figures.at(currentFigure).at(i).at(0) + posX/TILE_SIZE;
+
+            if(arrayX > horizontal){return;}
+            if(arrayX < 0){return;}
+            if(arrayY < 0){return;}
+        }
 
         for(int i = 0; i < 4; i ++){
             int arrayX = f.figures.at(currentFigure).at(i).at(0) + posX/TILE_SIZE;
             int arrayY = f.figures.at(currentFigure).at(i).at(1) + posY/TILE_SIZE;
-
-            if(arrayY < 0){return;}
 
             for(arrayY; arrayY < vertical; arrayY++){
                 if(wall.at(arrayY)->at(arrayX)->active){
@@ -309,29 +354,30 @@ class board{
             }
         }
 
-        if(least == 10000000){
-            for(int i = 0; i < 4; i++){
-                int diff = HEIGHT - (f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY);
-                if(diff < least) least = diff;
-            }
+        for(int i = 0; i < 4; i++){
+            int diff = HEIGHT - (f.figures.at(currentFigure).at(i).at(1) * TILE_SIZE + posY);
+            if(diff < least) least = diff;
         }
 
         posY += least - TILE_SIZE;
-        clockHardDrop.restart();
     }
 
     void valid(){
         for(int i = 0; i < 4; i++){
-
             if((WIDTH == f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX))
             {
                 posX -= 40;
             }
-            else if(0 > f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX)
+        }
+
+        for(int i = 0; i < 4; i++){
+            if(0 > f.figures.at(currentFigure).at(i).at(0) * TILE_SIZE + posX)
             {
                 posX += 40;
-            }
+            }  
+        }
 
+        for(int i = 0; i < 4; i++){
             for(int j = 0; j < horizontal; j++){
                 for(int k = 0; k < vertical; k++){
                     if(
@@ -351,7 +397,6 @@ class board{
     }
 
     void moveCurrentFigure(){
-
         if(clockSides.getElapsedTime().asSeconds() >= 0.1){
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             {
@@ -365,7 +410,7 @@ class board{
             }
         }
 
-        if(clockRotate.getElapsedTime().asSeconds() >= 0.2){
+        if(clockRotate.getElapsedTime().asSeconds() >= 0.3){
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             {
                 f.rotateFigure(currentFigure);
@@ -446,7 +491,7 @@ class board{
             int arrayX = f.figures.at(currentFigure).at(i).at(0) + posX/TILE_SIZE;
             int arrayY = f.figures.at(currentFigure).at(i).at(1) + posY/TILE_SIZE;
 
-            if(arrayY < 0){return ;}
+            if(arrayY < 0){return;}
 
             for(arrayY; arrayY < vertical; arrayY++){
                 if(wall.at(arrayY)->at(arrayX)->active){
@@ -507,6 +552,7 @@ class board{
     board(){
         f.rotateFigure(currentFigure);
         initializeWall();
+        menu m;
         while(window.isOpen())
         {
             sf::Event event;
@@ -531,17 +577,23 @@ class board{
             printWall();
             printShadow();
             renderGrid();
+
+            m.overlay(score);
+            m.rectangles();
             
             window.display();
         }
     }
 };
 
+
+
 int main(){
     sf::Vector2u size = window.getSize();
-    sf::View view(sf::Vector2f(100, 280), sf::Vector2f(size.x, size.y));
+    sf::View view(sf::Vector2f(210, 240), sf::Vector2f(size.x, size.y));
     window.setView(view);
     window.setFramerateLimit(120);
     board b;
+    menu m;
     return 0;
 }
