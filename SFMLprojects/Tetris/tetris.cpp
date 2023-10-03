@@ -4,6 +4,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <chrono>
 #include <thread>
+#include <queue>
 
 const int WIDTH = 200;
 const int HEIGHT = 520;
@@ -156,7 +157,6 @@ class menu{
         leftBottom.setOutlineThickness(2.0f);
         leftBottom.setFillColor(sf::Color::Transparent);
         window.draw(leftBottom);
-        
     }
 };
 
