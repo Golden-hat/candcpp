@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 #include <queue>
+#include <random>
 
 const int WIDTH = 200;
 const int HEIGHT = 520;
@@ -14,7 +15,7 @@ const int TILE_SIZE = 20;
 const int horizontal = WIDTH/TILE_SIZE;
 const int vertical = HEIGHT/TILE_SIZE;
 
-sf::RenderWindow window(sf::VideoMode(WIDTH+300, HEIGHT+200), "Tetris");
+sf::RenderWindow window(sf::VideoMode(WIDTH+275, HEIGHT+200), "Tetris");
 
 class figures{
     public:
@@ -44,7 +45,7 @@ class figures{
         }
     };
 
-    void drawFigure(int index, int posX, int posY){
+    void drawFigure(int index, int posX, int posY, int size){
         sf::Color color;
         switch (index)
         {
@@ -70,11 +71,13 @@ class figures{
                 color = sf::Color(250, 117, 206);
         }
         for(int i = 0; i < 4; i++){
-            sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(TILE_SIZE, TILE_SIZE));
+            sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(size, size));
             block.setFillColor(color);
+            block.setOutlineColor(sf::Color(75,75,75));
+            block.setOutlineThickness(1);
 
-            block.setPosition(figures.at(index).at(i).at(0) * TILE_SIZE + posX, 
-                              figures.at(index).at(i).at(1) * TILE_SIZE + posY);
+            block.setPosition(figures.at(index).at(i).at(0) * size + posX, 
+                              figures.at(index).at(i).at(1) * size + posY);
             window.draw(block);
         }
     }
@@ -91,8 +94,9 @@ class figures{
     }
 
     int selectRandomFigure(){
-        srand(time(0));
-        return rand()%7;
+        std::random_device rd;
+        std::uniform_int_distribution<int> dist (0, 6);
+        return dist(rd);
     }
 };
 
@@ -141,22 +145,90 @@ class menu{
         text.setPosition(sf::Vector2f(WIDTH/2.0f - 55, HEIGHT/2.0f + 300));
 
         window.draw(text);
+
+        sf::Text next;
+
+        next.setFont(font);
+        next.setString("NEXT:");
+        next.setCharacterSize(20);
+        next.setFillColor(sf::Color::White);
+
+        sf::FloatRect textRect2 = text.getLocalBounds();
+        next.setOrigin(textRect2.left + textRect2.width/2.0f, textRect2.top  + textRect2.height/2.0f);
+        next.setPosition(sf::Vector2f(WIDTH + 107, 30));
+
+        window.draw(next);
     }
 
     void rectangles(){
-        sf::RectangleShape leftBig = sf::RectangleShape(sf::Vector2f(WIDTH, HEIGHT));
+        sf::RectangleShape leftBig = sf::RectangleShape(sf::Vector2f(125, HEIGHT));
         leftBig.setPosition(WIDTH + 25, 0);
         leftBig.setOutlineColor(sf::Color::White);
         leftBig.setOutlineThickness(2.0f);
         leftBig.setFillColor(sf::Color::Transparent);
         window.draw(leftBig);
 
-        sf::RectangleShape leftBottom = sf::RectangleShape(sf::Vector2f(WIDTH, HEIGHT-400));
+        sf::RectangleShape leftBottom = sf::RectangleShape(sf::Vector2f(125, HEIGHT-400));
         leftBottom.setPosition(WIDTH + 25, 400);
         leftBottom.setOutlineColor(sf::Color::White);
         leftBottom.setOutlineThickness(2.0f);
         leftBottom.setFillColor(sf::Color::Transparent);
         window.draw(leftBottom);
+    }
+
+    void drawQueue(std::queue<int> queue, int hold){
+        figures f;
+        for(int i = 4; i > 0; i--){
+            sf::RectangleShape leftBottom = sf::RectangleShape(sf::Vector2f(60, 60));
+            leftBottom.setPosition(WIDTH + 57, 380 - 80*i);
+            leftBottom.setOutlineColor(sf::Color::White);
+            leftBottom.setOutlineThickness(1.0f);
+            leftBottom.setFillColor(sf::Color::Transparent);
+            window.draw(leftBottom);
+
+            int figure = queue.front();
+            queue.pop();
+
+            if(figure == 0)
+                f.drawFigure(figure, WIDTH + 57, 380 - 80*i + 25, 10);
+            else if(figure == 1)
+                f.drawFigure(figure, WIDTH + 57 + 20, 380 - 80*i + 5, 10);
+            else if(figure == 2)
+                f.drawFigure(figure, WIDTH + 57 + 9, 380 - 80*i + 3, 10);
+            else if(figure == 3)
+                f.drawFigure(figure, WIDTH + 57 + 20, 380 - 80*i + 20, 10);
+            else if(figure == 4)
+                f.drawFigure(figure, WIDTH + 57 + 15, 380 - 80*i + 15, 10);
+            else if(figure == 5)
+                f.drawFigure(figure, WIDTH + 57 + 20, 380 - 80*i + 15, 10);
+            else if(figure == 6)
+                f.drawFigure(figure, WIDTH + 57 + 20, 380 - 80*i + 15, 10);
+            queue.push(figure);
+        }
+
+            sf::RectangleShape leftBottom = sf::RectangleShape(sf::Vector2f(60, 60));
+            leftBottom.setPosition(WIDTH + 57, 430);
+            leftBottom.setOutlineColor(sf::Color::White);
+            leftBottom.setOutlineThickness(1.0f);
+            leftBottom.setFillColor(sf::Color::Transparent);
+
+            if(hold == 0)
+                f.drawFigure(hold, WIDTH + 57, 430 + 25, 10);
+            else if(hold == 1)
+                f.drawFigure(hold, WIDTH + 57 + 20, 430 + 5, 10);
+            else if(hold == 2)
+                f.drawFigure(hold, WIDTH + 57 + 9, 430 + 3, 10);
+            else if(hold == 3)
+                f.drawFigure(hold, WIDTH + 57 + 20, 430 + 20, 10);
+            else if(hold == 4)
+                f.drawFigure(hold, WIDTH + 57 + 15, 430 + 15, 10);
+            else if(hold == 5)
+                f.drawFigure(hold, WIDTH + 57 + 20, 430 + 15, 10);
+            else if(hold == 6)
+                f.drawFigure(hold, WIDTH + 57 + 20, 430 + 15, 10);
+            queue.push(hold);
+
+            window.draw(leftBottom);
     }
 };
 
@@ -165,6 +237,8 @@ class board{
     float prevX = 0;
     float prevY = 0;
     int score = 0;
+    int hold = -1;
+    bool disableHold = false;
     std::queue<int> figureList;
 
     float posX = WIDTH/2 - TILE_SIZE;
@@ -196,7 +270,7 @@ class board{
     }
 
     void populateFigureList(){
-        while(figureList.size() < 4){
+        while(figureList.size() < 4){    
             figureList.push(f.selectRandomFigure());
         }
     }
@@ -212,7 +286,9 @@ class board{
     }
 
     void bringNewFigure(){
-        currentFigure = f.selectRandomFigure();
+        disableHold = false;
+        currentFigure = figureList.front();
+        figureList.pop();
         posY = -80;
         posX = WIDTH/2 - 2*TILE_SIZE;
     }
@@ -243,6 +319,21 @@ class board{
                 }
             }
         }
+    }
+
+    void putOnHold(){
+        if(hold == -1){
+            hold = currentFigure;
+            bringNewFigure();
+        }
+        else{
+            int cpCur = currentFigure;
+            currentFigure = hold;
+            hold = cpCur;
+            posY = -80;
+            posX = WIDTH/2 - 2*TILE_SIZE;
+        }
+        disableHold = true;
     }
 
     void checkCollision(){
@@ -417,7 +508,7 @@ class board{
             }
         }
 
-        if(clockRotate.getElapsedTime().asSeconds() >= 0.3){
+        if(clockRotate.getElapsedTime().asSeconds() >= 0.2){
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             {
                 f.rotateFigure(currentFigure);
@@ -434,6 +525,11 @@ class board{
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
             hardDrop();
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) && disableHold != true)
+        {
+            putOnHold();
         } 
     }
     
@@ -558,6 +654,8 @@ class board{
 
     board(){
         f.rotateFigure(currentFigure);
+        populateFigureList();
+        
         initializeWall();
         menu m;
         while(window.isOpen())
@@ -574,7 +672,7 @@ class board{
 
             window.clear();
             savePosition();
-            f.drawFigure(currentFigure, posX, posY);
+            f.drawFigure(currentFigure, posX, posY, TILE_SIZE);
 
             moveCurrentFigure();
             checkCollision(); 
@@ -588,6 +686,7 @@ class board{
 
             m.overlay(score);
             m.rectangles();
+            m.drawQueue(figureList, hold);
             
             window.display();
         }
@@ -598,7 +697,7 @@ class board{
 
 int main(){
     sf::Vector2u size = window.getSize();
-    sf::View view(sf::Vector2f(210, 240), sf::Vector2f(size.x, size.y));
+    sf::View view(sf::Vector2f(170, 240), sf::Vector2f(size.x, size.y));
     window.setView(view);
     window.setFramerateLimit(120);
     board b;
