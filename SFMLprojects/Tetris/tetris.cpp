@@ -165,6 +165,7 @@ class board{
     float prevX = 0;
     float prevY = 0;
     int score = 0;
+    std::queue<int> figureList;
 
     float posX = WIDTH/2 - TILE_SIZE;
     float posY = -80;
@@ -191,6 +192,12 @@ class board{
                 
                 window.draw(tile);
             }
+        }
+    }
+
+    void populateFigureList(){
+        while(figureList.size() < 4){
+            figureList.push(f.selectRandomFigure());
         }
     }
 
@@ -563,6 +570,7 @@ class board{
                 }
             }
             getPhysics();
+            populateFigureList();
 
             window.clear();
             savePosition();
