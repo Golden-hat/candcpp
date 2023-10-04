@@ -155,7 +155,7 @@ class menu{
 
         sf::FloatRect textRect2 = text.getLocalBounds();
         next.setOrigin(textRect2.left + textRect2.width/2.0f, textRect2.top  + textRect2.height/2.0f);
-        next.setPosition(sf::Vector2f(WIDTH + 107, 30));
+        next.setPosition(sf::Vector2f(WIDTH + 115, 30));
 
         window.draw(next);
     }
@@ -236,11 +236,11 @@ class board{
     public:
     float prevX = 0;
     float prevY = 0;
-    long long int score = 0;
+    long long int score = 10;
     int hold = -1;
     bool disableHold = false;
     std::queue<int> figureList;
-    float speed = 0.25;
+    float speed = 0.4;
 
     float posX = WIDTH/2 - TILE_SIZE;
     float posY = -80;
@@ -420,7 +420,6 @@ class board{
 
     void moveFigureDown(){
         if(clockDown.getElapsedTime().asSeconds() >= speed){
-            score += 2;
             posY += TILE_SIZE;
             clockDown.restart();
         }
@@ -428,7 +427,7 @@ class board{
 
     void moveFigureDownFaster(){
         if(clockDown.getElapsedTime().asSeconds() >= speed/2){
-            score += 10;
+            score += 5;
             posY += TILE_SIZE;
             clockDown.restart();
         }
@@ -467,7 +466,7 @@ class board{
 
         posY += least - TILE_SIZE;
 
-        score += (least - TILE_SIZE)/TILE_SIZE * 10;
+        score += (least - TILE_SIZE)/TILE_SIZE * 5;
     }
 
     void valid(){
@@ -694,7 +693,7 @@ class board{
             printShadow();
             renderGrid();
         
-            if(score % 1000 == 0 && speed != 0.1) speed -= 0.01;
+            if(score % 2000 == 0 && speed != 0.1) speed -= 0.01;
 
             m.overlay(score);
             m.rectangles();
