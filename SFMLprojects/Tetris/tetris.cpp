@@ -236,7 +236,7 @@ class board{
     public:
     float prevX = 0;
     float prevY = 0;
-    int score = 0;
+    long long int score = 0;
     int hold = -1;
     bool disableHold = false;
     std::queue<int> figureList;
@@ -383,16 +383,16 @@ class board{
     }
 
     void line(){
+        int simultaneousLines = 0;
         for(int j = vertical-1; j >= 0; j--){
             int counter = 0;
             for(int i = 0; i < horizontal; i++){
                 if (wall.at(j)->at(i)->active){
                     counter++;
-                    if(counter % 10 == 0 && speed != 0.1) speed -= 0.01;
                 }
             }
             if(counter == WIDTH/TILE_SIZE){
-                score++;
+                simultaneousLines++;
                 for(int i = 0; i < horizontal; i++){
                     wall.at(j)->at(i)->color = sf::Color::Transparent;
                     wall.at(j)->at(i)->active = false;
@@ -412,10 +412,15 @@ class board{
                 }
             }
         }
+
+        if(simultaneousLines == 4){score += 600;}
+        else
+            score += 100*simultaneousLines;
     }
 
     void moveFigureDown(){
         if(clockDown.getElapsedTime().asSeconds() >= speed){
+            score += 2;
             posY += TILE_SIZE;
             clockDown.restart();
         }
@@ -423,6 +428,7 @@ class board{
 
     void moveFigureDownFaster(){
         if(clockDown.getElapsedTime().asSeconds() >= speed/2){
+            score += 10;
             posY += TILE_SIZE;
             clockDown.restart();
         }
@@ -460,6 +466,8 @@ class board{
         }
 
         posY += least - TILE_SIZE;
+
+        score += (least - TILE_SIZE)/TILE_SIZE * 10;
     }
 
     void valid(){
@@ -685,6 +693,8 @@ class board{
             printWall();
             printShadow();
             renderGrid();
+        
+            if(score % 1000 == 0 && speed != 0.1) speed -= 0.01;
 
             m.overlay(score);
             m.rectangles();
