@@ -240,6 +240,7 @@ class board{
     int hold = -1;
     bool disableHold = false;
     std::queue<int> figureList;
+    float speed = 0.25;
 
     float posX = WIDTH/2 - TILE_SIZE;
     float posY = -80;
@@ -387,6 +388,7 @@ class board{
             for(int i = 0; i < horizontal; i++){
                 if (wall.at(j)->at(i)->active){
                     counter++;
+                    if(counter % 10 == 0 && speed != 0.1) speed -= 0.01;
                 }
             }
             if(counter == WIDTH/TILE_SIZE){
@@ -413,14 +415,14 @@ class board{
     }
 
     void moveFigureDown(){
-        if(clockDown.getElapsedTime().asSeconds() >= 0.3){
+        if(clockDown.getElapsedTime().asSeconds() >= speed){
             posY += TILE_SIZE;
             clockDown.restart();
         }
     }
 
     void moveFigureDownFaster(){
-        if(clockDown.getElapsedTime().asSeconds() >= 0.1){
+        if(clockDown.getElapsedTime().asSeconds() >= speed/2){
             posY += TILE_SIZE;
             clockDown.restart();
         }
