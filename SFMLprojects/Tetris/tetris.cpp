@@ -709,9 +709,13 @@ class board{
 int main(){
     sf::Vector2u size = window.getSize();
     sf::View view(sf::Vector2f(170, 240), sf::Vector2f(size.x, size.y));
-    window.setView(view);
-    window.setFramerateLimit(120);
-    board b;
-    menu m;
+    bool gameOver = false;
+    do{
+        window.setView(view);
+        window.setFramerateLimit(120);
+        board b;
+        menu m;
+    }while(!gameOver);
+
     return 0;
 }
