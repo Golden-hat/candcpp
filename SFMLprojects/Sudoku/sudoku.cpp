@@ -92,9 +92,9 @@ int main(){
     printGrid();
     solveSudoku();
 
-    std::cout << "\n-------------------------\n" << std::endl;
-    std::cout << "\n-------------------------\n" << std::endl;
-    std::cout << "\n------FINAL SOLUTION-----\n" << std::endl;
+    std::cout << "\n------------------------\n" << std::endl;
+    std::cout << "\n------------------------\n" << std::endl;
+    std::cout << "\n-----FINAL SOLUTION-----\n" << std::endl;
     std::cout << std::endl;
     printGrid();
     return 0;
