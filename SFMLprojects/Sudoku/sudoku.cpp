@@ -6,17 +6,12 @@
 #include <thread>
 #include <queue>
 #include <random>
+#include <unistd.h>
+
+//ADVANTAGES AND DISADVANTAGES OF THE DAO PATTERN
 
 int grid[9][9] = 
-{{ 8, 0, 7, 6, 0, 3, 0, 0, 9 },
-{ 0, 0, 0, 0, 0, 0, 3, 0, 1 },
-{ 5, 0, 0, 9, 0, 4, 0, 0, 0 },
-{ 0, 9, 0, 0, 0, 0, 0, 1, 0 },
-{ 2, 0, 0, 7, 4, 5, 0, 0, 0 },
-{ 7, 5, 0, 0, 0, 0, 8, 2, 0 },
-{ 0, 0, 0, 0, 0, 8, 0, 0, 0 },
-{ 0, 0, 0, 0, 2, 0, 6, 7, 0 },
-{ 0, 0, 4, 5, 6, 0, 0, 9, 0 }};
+{0};
 
 void printGrid(){
     for(int i = 0; i < 9; i++){
@@ -27,6 +22,7 @@ void printGrid(){
         std::cout << std::endl;
     }
 }
+
 
 bool foundFirstEmpty(int* col, int* row){
     for(int i = 0; i < 9; i++){
@@ -67,6 +63,38 @@ bool fits(int n, int posX, int posY){
     return true;
 }
 
+void randSetup(){
+    std::vector<std::vector<int>> list;
+
+    for(int k = 0; k < 8; k++){
+        std::random_device rd;
+        std::uniform_int_distribution<int> dist(0, 8);
+        std::uniform_int_distribution<int> num(0, 9);
+
+        int i = dist(rd);
+        int j = dist(rd);
+        int number = num(rd);
+
+        if(k == 0){grid[0][0] = number;}
+        
+        if(fits(number, i, j)){grid[i][j] = number;}
+        else{k--;}
+    }
+}
+
+void eraseSomeTiles(int n){
+    for(int k = 0; k < n; k++){
+        std::random_device rd;
+        std::uniform_int_distribution<int> dist(0, 8);
+
+        int i = dist(rd);
+        int j = dist(rd);
+
+        if(grid[i][j] != 0){grid[i][j] = 0;}
+        else{k--;}
+    }
+}
+
 bool solveSudoku(){
     int col;
     int row;
@@ -76,8 +104,6 @@ bool solveSudoku(){
     for(int i = 0; i <= 9; i++){
         if(fits(i, col, row)){
             grid[col][row] = i;
-            std::cout << "\n-------------------------\n" << std::endl;
-            printGrid();
             if(solveSudoku()){
                 return true;
             }
@@ -87,15 +113,23 @@ bool solveSudoku(){
     return false;
 }
 
+void randSudoku(){
+    randSetup();
+    solveSudoku();
+    eraseSomeTiles(45);
+}
+
 int main(){
     std::cout << std::endl;
+    randSudoku();
     printGrid();
-    solveSudoku();
 
     std::cout << "\n------------------------\n" << std::endl;
     std::cout << "\n------------------------\n" << std::endl;
     std::cout << "\n-----FINAL SOLUTION-----\n" << std::endl;
     std::cout << std::endl;
+    
+    solveSudoku();
     printGrid();
     return 0;
 }
