@@ -1,8 +1,5 @@
 #include <iostream>
 #include <time.h>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <chrono>
 #include <thread>
 #include <queue>
 #include <random>
