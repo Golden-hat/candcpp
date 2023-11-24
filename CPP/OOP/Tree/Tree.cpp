@@ -6,6 +6,8 @@
 int HEIGHT = 800;
 int WIDTH = 1000;
 
+sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Tree");
+
 template<class T>
 class Tree{
 
@@ -40,22 +42,19 @@ class Tree{
 	void drawTree(){
 		int division = (HEIGHT - 200) / numberOfLevels();
 
+        sf::RectangleShape block = sf::RectangleShape(sf::Vector2f(30, 30));
+        block.setFillColor(sf::Color::White);
+        block.setOutlineColor(sf::Color(75,75,75));
+        block.setOutlineThickness(1);
+
+        block.setPosition(50 ,50);
+        window.draw(block);
 	}
 };
 
 int main(){
     Tree<int> t;
 	t.root.data = 1;
-    t.addChildren(2, &t.root);
-    t.addChildren(3, t.root.children.at(0));
-    t.addChildren(9, t.root.children.at(0)->children.at(0));
-    t.addChildren(9, t.root.children.at(0)->children.at(0)->children.at(0));
-    
-    t.addChildren(6, &t.root);
-    t.addChildren(7, &t.root);
-    t.addChildren(8, &t.root);
-    t.addChildren(4, t.root.children.at(1));
-    t.addChildren(5, t.root.children.at(2));
-    t.addChildren(5, t.root.children.at(2)->children.at(0));
+
 	std::cout << t.numberOfLevels(0, &t.root) << std::endl;
 }
