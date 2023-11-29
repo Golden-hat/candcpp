@@ -8,6 +8,7 @@ int WIDTH = 1000;
 int nodeL = 10;
 
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Tree");
+sf::View View2(sf::FloatRect(0, 0, 1000, 800));
 
 template<class T>
 class Tree{
@@ -70,6 +71,7 @@ class Tree{
 	}
 
     void renderLoop(){
+        window.setView(View2);
         while(window.isOpen())
         {   window.clear();
             sf::Event event;
@@ -77,6 +79,30 @@ class Tree{
             {
                 if (event.type == sf::Event::Closed){
                     window.close();
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
+                    View2.zoom(1.1f);
+                    window.setView(View2);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
+                    View2.zoom(0.9f);
+                    window.setView(View2);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
+                    View2.move(-25.f, 0);
+                    window.setView(View2);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+                    View2.move(25.f, 0);
+                    window.setView(View2);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+                    View2.move(0, -25.f);
+                    window.setView(View2);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+                    View2.move(0, 25.f);
+                    window.setView(View2);
                 }
             }
             drawTree(&root, WIDTH-200, 0);
