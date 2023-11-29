@@ -42,8 +42,7 @@ class Tree{
 	}
     
 	void drawTree(Node<T>* curr, double segWidth, int j){
-        int divisionHeight = 10;
-		divisionHeight = (HEIGHT) / (divisionHeight + numberOfLevels(0, &root));
+		int divisionHeight = (HEIGHT) / (10 + numberOfLevels(0, &root));
 
         if(j == 0){
             sf::RectangleShape node = sf::RectangleShape(sf::Vector2f(nodeL, nodeL));
@@ -53,15 +52,14 @@ class Tree{
             window.draw(node);
             j++;
         }
-
-		double divisionWidth = segWidth/2;
+        double divisionWidth = segWidth/2;
         for(int i = 0; i < curr->children.size(); i++){
-		    divisionWidth = (segWidth) / curr->children.size();
-            
+		    double divisionWidth = (segWidth) / (curr->children.size() + 1);
+            printf("holaa");
             sf::RectangleShape node = sf::RectangleShape(sf::Vector2f(nodeL, nodeL));
             node.setFillColor(sf::Color::White);
 
-            node.setPosition(divisionWidth*(i+1), divisionHeight*(j+1));
+            node.setPosition(divisionWidth+divisionWidth*(i), divisionHeight*(j+1));
             window.draw(node);
         }
         j++;
@@ -105,7 +103,7 @@ class Tree{
                     window.setView(View2);
                 }
             }
-            drawTree(&root, WIDTH-200, 0);
+            drawTree(&root, WIDTH, 0);
             window.display();
         }
     }
@@ -114,17 +112,12 @@ class Tree{
 int main(){
     Tree<int> t;
 	t.root.data = 1;
-    t.addChildren(3, &t.root);    t.addChildren(3, &t.root);
-        t.addChildren(3, &t.root);    t.addChildren(3, &t.root);    t.addChildren(3, &t.root);
-        t.addChildren(3, t.root.children.at(0));
-        t.addChildren(3, t.root.children.at(2));
-        t.addChildren(3, t.root.children.at(3));
-        t.addChildren(3, t.root.children.at(1));
-        t.addChildren(3, t.root.children.at(1));
-        t.addChildren(3, t.root.children.at(1));
-        t.addChildren(13, t.root.children.at(1)->children.at(0));
-        t.addChildren(13, t.root.children.at(1)->children.at(0));
-        t.addChildren(13, t.root.children.at(1)->children.at(0));
+    t.addChildren(3, &t.root);
+    t.addChildren(3, &t.root);
+    t.addChildren(3, t.root.children.at(0));
+    t.addChildren(3, t.root.children.at(0));
+    t.addChildren(3, t.root.children.at(0));
+    t.addChildren(3, t.root.children.at(0));
     t.renderLoop();
 
 	std::cout << t.numberOfLevels(0, &t.root) << std::endl;
