@@ -8,7 +8,7 @@ int WIDTH = 1000;
 int nodeL = 10;
 
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Tree");
-sf::View View2(sf::FloatRect(0, 0, 1000, 800));
+sf::View View2(sf::FloatRect(0, 0, WIDTH, HEIGHT));
 
 template<class T>
 class Tree{
@@ -41,7 +41,7 @@ class Tree{
 		return max;
 	}
     
-	void drawTree(Node<T>* curr, double segWidth, int j){
+	void drawTree(Node<T>* curr, double segWidth, int j, double middlePoint){
 		int divisionHeight = (HEIGHT) / (10 + numberOfLevels(0, &root));
 
         if(j == 0){
@@ -52,19 +52,24 @@ class Tree{
             window.draw(node);
             j++;
         }
+
         double divisionWidth = segWidth/2;
+        std::vector<double> middlePoints;
         for(int i = 0; i < curr->children.size(); i++){
-		    double divisionWidth = (segWidth) / (curr->children.size() + 1);
-            printf("holaa");
+		    double divisionWidth = (segWidth) / (curr->children.size());
+
             sf::RectangleShape node = sf::RectangleShape(sf::Vector2f(nodeL, nodeL));
             node.setFillColor(sf::Color::White);
-
-            node.setPosition(divisionWidth+divisionWidth*(i), divisionHeight*(j+1));
+            double startingPoint = middlePoint - segWidth/2;
+            node.setPosition(startingPoint + divisionWidth*(i), divisionHeight*(j+1));
             window.draw(node);
+
+            middlePoints.push_back(startingPoint + divisionWidth*(i));
         }
+
         j++;
         for(int i = 0; i < curr->children.size(); i++){
-            drawTree(curr->children.at(i), divisionWidth, j);
+            drawTree(curr->children.at(i), divisionWidth, j, middlePoints.at(i));
         }
 	}
 
@@ -103,7 +108,7 @@ class Tree{
                     window.setView(View2);
                 }
             }
-            drawTree(&root, WIDTH, 0);
+            drawTree(&root, WIDTH, 0, WIDTH/2);
             window.display();
         }
     }
@@ -114,7 +119,6 @@ int main(){
 	t.root.data = 1;
     t.addChildren(3, &t.root);
     t.addChildren(3, &t.root);
-    t.addChildren(3, t.root.children.at(0));
     t.addChildren(3, t.root.children.at(0));
     t.addChildren(3, t.root.children.at(0));
     t.addChildren(3, t.root.children.at(0));
