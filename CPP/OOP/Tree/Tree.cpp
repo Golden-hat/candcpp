@@ -118,7 +118,6 @@ int main(){
     Tree<int> t;
 	t.root.data = 1;
     t.addChildren(3, &t.root);
-    t.addChildren(3, &t.root);
     t.addChildren(3, t.root.children.at(0));
     t.addChildren(3, t.root.children.at(0));
     t.addChildren(3, t.root.children.at(0));
