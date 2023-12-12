@@ -28,16 +28,20 @@ std::vector<std::string>* stringToArray(std::string line, char a){
     return arr;
 }
 
-bool isValid(int red, int green, int blue, std::string line){
+int getMinimum(){
     std::vector<std::string>* array = stringToArray(line, ' ');
+    int redMin = 10000;
+    int greenMin = 10000;
+    int blueMin = 10000;
     for(int i = 2; i < array->size(); i = i+2){
         int x = std::stoi(array->at(i));
         // std::cout << x <<", '"<< array->at(i+1) <<"' ?"<< std::endl;
-        if(array->at(i+1) == "r" && x > red ){ return false; }
-        if(array->at(i+1) == "g" && x > green ){ return false; }
-        if(array->at(i+1) == "b" && x > blue ){ return false; }
+        if(array->at(i+1) == "r" && x < redMin ){ redMin = x; }
+        if(array->at(i+1) == "g" && x < greenMin ){ greenMin = x; }
+        if(array->at(i+1) == "b" && x < blueMin ){ blueMin = x; }
     }
-    return true;
+    delete(array);
+    return redMin * greenMin * blueMin;
 }
 
 int main(int argc, char *argv[]){
@@ -53,8 +57,8 @@ int main(int argc, char *argv[]){
 
     int nGame = 1;
     while(getline(file, line)){
-        bool valid = isValid(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), line);
-        if(valid) IDsum += nGame;
+        int valid = isValid(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), line);
+        IDsum += valid;
         std::cout << line << ", " << valid << "\n";
         nGame++;
     }
