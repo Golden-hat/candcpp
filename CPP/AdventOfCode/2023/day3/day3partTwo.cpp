@@ -23,7 +23,9 @@ class symbol{
             int sum = 1;
             for(int i = 0; i < list.size(); i++){
                 sum *= list.at(i);
+                std::cout << list.at(i) << ", ";
             }
+            std::cout << std::endl;
             return sum;
         }
 
@@ -49,6 +51,7 @@ class symbolList{
             symbol* s = findSymbol(symbolX, symbolY);
             if(s == nullptr){
                 symbol symb(symbolX, symbolY);
+                symb.addNumberToList(value);
                 list.push_back(symb);
             }
             else{
@@ -115,7 +118,7 @@ void checkNeighbours(std::vector<int>* y, std::vector<int>* x, std::vector<std::
                 if((y->at(i)+col != -1 && x->at(i)+row != -1) &&
                    (y->at(i)+col != array->size() && x->at(i)+row != array->at(i).size())){
                     if(!isContained("1234567890.", array->at(y->at(i)+col).at(x->at(i)+row))){
-                       symb.addToList(x->at(i)+row, y->at(i)+col, std::stoi(number)); 
+                       symb.addToList(x->at(i)+row, y->at(i)+col, std::stoi(number)); return; 
                     }
                 }
             }
@@ -139,7 +142,6 @@ void sumNumbers(std::vector<std::vector<char>>* array){
             }
             else if(numString != ""){
                 checkNeighbours(y, x, array, numString);
-                std::cout << numString << ", " << y->at(0) << std::endl;
                 numString = "";
                 y->clear();
                 x->clear();
