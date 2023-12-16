@@ -4,6 +4,71 @@
 #include <string>
 #include <fstream>
 
+class symbol{
+    public:
+        std::vector<int> list;
+        int symbolX;
+        int symbolY;
+    
+        symbol(int symbolX, int symbolY){
+            this->symbolX = symbolX;
+            this->symbolY = symbolY;
+        }
+        
+        void addNumberToList(int number){
+            list.push_back(number);
+        }
+
+        int returnMultList(){
+            int sum = 1;
+            for(int i = 0; i < list.size(); i++){
+                sum *= list.at(i);
+            }
+            return sum;
+        }
+
+        bool isExactlyLenTwo(){
+            return 2 == list.size();
+        }
+};
+
+class symbolList{
+    public:
+        std::vector<symbol> list;
+        
+        symbol* findSymbol(int symbolX, int symbolY){
+            for(int i = 0; i < list.size(); i++){
+                if(list.at(i).symbolX == symbolX && list.at(i).symbolY == symbolY){
+                    return &list.at(i);
+                }
+            }
+            return nullptr;
+        }
+    
+        void addToList(int symbolX, int symbolY, int value){
+            symbol* s = findSymbol(symbolX, symbolY);
+            if(s == nullptr){
+                symbol symb(symbolX, symbolY);
+                list.push_back(symb);
+            }
+            else{
+                s->addNumberToList(value);
+            }
+        }
+
+        int sumOfEqTwo(){
+            int sum = 0;
+            for(int i = 0; i < list.size(); i++){
+                if(list.at(i).isExactlyLenTwo()){
+                    sum += list.at(i).returnMultList();
+                }
+            }
+            return sum;
+        }
+};
+
+symbolList symb;
+
 bool isContained(std::string t, char a){
     for(int i = 0; i < t.length(); i++){
         if(t.at(i) == a){return true;}
@@ -43,23 +108,23 @@ std::vector<std::vector<char>>* convertToArray (std::string fileName){
     return array;
 }
 
-bool checkNeighbours(std::vector<int>* y, std::vector<int>* x, std::vector<std::vector<char>>* array){
+void checkNeighbours(std::vector<int>* y, std::vector<int>* x, std::vector<std::vector<char>>* array, std::string number){
     for(int i = 0; i < x->size(); i++){
         for(int col = -1; col <= 1; col++){
             for(int row = -1; row <= 1; row++){
                 if((y->at(i)+col != -1 && x->at(i)+row != -1) &&
                    (y->at(i)+col != array->size() && x->at(i)+row != array->at(i).size())){
-                    if(!isContained("1234567890.", array->at(y->at(i)+col).at(x->at(i)+row))) return true;
+                    if(!isContained("1234567890.", array->at(y->at(i)+col).at(x->at(i)+row))){
+                       symb.addToList(x->at(i)+row, y->at(i)+col, std::stoi(number)); 
+                    }
                 }
             }
         }
     }
-    return false;
 }
 
-int sumNumbers(std::vector<std::vector<char>>* array){
+void sumNumbers(std::vector<std::vector<char>>* array){
     std::string numberString = "0123456789"; 
-    int sum = 0;
     int j = 0;
     std::vector<int>* y = new std::vector<int>;
     std::vector<int>* x = new std::vector<int>;
@@ -73,30 +138,24 @@ int sumNumbers(std::vector<std::vector<char>>* array){
                 x->push_back(i);
             }
             else if(numString != ""){
-                if(checkNeighbours(y, x, array)){
-                    sum += std::stoi(numString);
-                    std::cout << numString << ", " << y->at(0) << std::endl;
-                }
+                checkNeighbours(y, x, array, numString);
+                std::cout << numString << ", " << y->at(0) << std::endl;
                 numString = "";
                 y->clear();
                 x->clear();
             }
         }
         /* Cuando se llega al eol, hay que "limpiar" */
-        if(checkNeighbours(y, x, array)){
-            sum += std::stoi(numString);
-            std::cout << numString << ", " << y->at(0) << std::endl;
-        }
+        checkNeighbours(y, x, array, numString);
         numString = "";
         y->clear();
         x->clear();
     }
-    return sum;
 }
 
 int main(){
     std::vector<std::vector<char>>* array = convertToArray("input.txt");
-    std::cout << sumNumbers(array) << std::endl;
+    sumNumbers(array);
+    std::cout << symb.sumOfEqTwo() << std::endl;
     return 0;
 }
-
