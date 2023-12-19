@@ -5,6 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <map>
+#include <unistd.h>
 
 std::map<std::string, int> nCards;
 
@@ -33,23 +34,25 @@ std::vector<std::string>* stringToArray(std::string line, char a){
 }
 
 void initializeDeck(std::vector<std::string>* array){
-    nCards[array->at(0)+" "+array->at(1)] = 1;
+    nCards["Card "+array->at(1)] = 1;
 }
 
-void addCardToDeck(std::vector<std::string>* array){
-    for(int k = 0; k < nCards[array->at(0)+" "+array->at(1)] += count; k++){
+int addCardToDeck(std::vector<std::string>* array){
+    for(int k = 0; k < nCards["Card "+array->at(1)]; k++){
         int count = 0;
         for(int i = 2; i <= 11; i++){
             for(int j = 13; j < array->size(); j++){
                 if(array->at(i) == array->at(j)) count++;
             }
         }
-        nCards[array->at(0)+" "+array->at(1)] += count;
+        std::cout << "Card " << (array->at(1).substr(0,array->at(1).size()-1)) << ", from which there are "<< nCards["Card "+array->at(1)] <<" in the deck has a count of: " << count << std::endl;
+        for(int j = std::stoi(array->at(1).substr(0, array->at(1).size()-1)) + 1; j < std::stoi(array->at(1).substr(0, array->at(1).size()-1))+ 1 + count; j++){
+            std::cout << "  At Card: " << std::to_string(j)+", " << nCards["Card "+std::to_string(j)+":"] << "+1! \n"; 
+            nCards["Card "+std::to_string(j)+":"] += 1;
+        }
     }
-}
-
-int getNumCards(){
-    
+    std::cout << std::endl;
+    return nCards["Card "+array->at(1)] ;
 }
 
 int main(){
@@ -67,11 +70,10 @@ int main(){
     file.open("input.txt");
     while(getline(file, line)){
         std::vector<std::string>* array = stringToArray(line, ' ');
-        addCardToDeck(array);
+        sum += addCardToDeck(array);
         delete(array);
     }
 
-    sum += getNumCards();
     std::cout << "The total amount of cards is: " << sum << "." << std::endl;
     file.close();   
     return 0;
