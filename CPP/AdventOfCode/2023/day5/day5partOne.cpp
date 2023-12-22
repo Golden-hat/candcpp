@@ -56,6 +56,17 @@ std::vector<int>* saveSeeds(std::string line){
     return seeds;
 }
 
+int operation(int number, std::vector<std::string>* arr){
+    int source = std::stoi(arr->at(1));
+    int destination = std::stoi(arr->at(0));
+    int range = std::stoi(arr->at(2));
+
+    if(number >= source && number <= source + diff){
+        return number-source + destination;
+    }
+    return number;
+}
+
 int whichLevel(std::string line){
     if(line == "seed-to-soil map:") return 0;
     if(line == "soil-to-fertilizer map:") return 1;
@@ -64,6 +75,7 @@ int whichLevel(std::string line){
     if(line == "light-to-temperature map:") return 4;
     if(line == "temperature-to-humidity map:") return 5;
     if(line == "humidity-to-location map:") return 6;
+    return 0;
 }
 
 int main(){
@@ -84,8 +96,8 @@ int main(){
     }
     file.close();
      
-    for(int s = 0; i < seeds.size(); s++){
-        Tree t(std::to_string(seeds.at(0)));
+    for(int s = 0; s < seeds->size(); s++){
+        Tree<int> t (std::to_string(seeds->at(s)));
         int currentLevel;
         for(int i = 0; i < input.size(); i++){
             std::vector<std::string>* array = stringToArray(input.at(i), ' ');
@@ -93,7 +105,11 @@ int main(){
                 currentLevel = whichLevel(input.at(0));
             }
             if(array->size() != 0 && !isContained(input.at(0), '-')){
-                t.nodesInLevel(currentLevel);   
+                std::vector<Node<int>*>* vec = new std::vector<Node<int>*>;
+                vec = t.nodesInLevel(currentLevel - 1);   
+                for(int j = 0; j < vec->size(); j++){
+                    t.addChildren(operation(vec->at(j)));
+                }
             }
         }
     }
