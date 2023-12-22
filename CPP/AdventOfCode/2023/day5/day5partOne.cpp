@@ -56,6 +56,16 @@ std::vector<int>* saveSeeds(std::string line){
     return seeds;
 }
 
+int whichLevel(std::string line){
+    if(line == "seed-to-soil map:") return 0;
+    if(line == "soil-to-fertilizer map:") return 1;
+    if(line == "fertilizer-to-water map:") return 2;
+    if(line == "water-to-light map:") return 3;
+    if(line == "light-to-temperature map:") return 4;
+    if(line == "temperature-to-humidity map:") return 5;
+    if(line == "humidity-to-location map:") return 6;
+}
+
 int main(){
     std::ifstream file;
     file.open("input.txt");
@@ -76,13 +86,14 @@ int main(){
      
     for(int s = 0; i < seeds.size(); s++){
         Tree t(std::to_string(seeds.at(0)));
+        int currentLevel;
         for(int i = 0; i < input.size(); i++){
             std::vector<std::string>* array = stringToArray(input.at(i), ' ');
-            if(array->size() != 0 && !isContained(input.at(0), '-')){
-                t.addChildren()    
+            if(isContained(input.at(0), '-')){
+                currentLevel = whichLevel(input.at(0));
             }
             if(array->size() != 0 && !isContained(input.at(0), '-')){
-                
+                t.nodesInLevel(currentLevel);   
             }
         }
     }

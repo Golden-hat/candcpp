@@ -15,7 +15,7 @@ template<class T>
 class Tree{
 
     public:
-    std::string name
+    std::string name;
     Node<T> root;
     Tree(std::string name){
         this->name = name;
@@ -26,6 +26,10 @@ class Tree{
         n->data = data;
 
         parent->children.push_back(n);
+    }
+    
+    int numberOfLevels(){
+        return numberOfLevels(0, &root);
     }
 
 	/* PRECONDITION. max must be initialized to 0  
@@ -42,6 +46,19 @@ class Tree{
         printf("max: %d\n", max);
 		return max;
 	}
+
+    std::vector<Node<T>*>* nodesInLevel(int level){
+        std::vector<Node<T>*>* vec = new std::vector<Node<T>*>;
+        nodesInLevel(level, 0, &root, vec);
+        return vec; 
+    }
+
+    void nodesInLevel(int level, int currLevel, Node<T>* root, std::vector<Node<T>*>* vec){
+        if(level == currLevel){vec->push_back(root); return;}
+        for(int i = 0; i < root->children.size(); i++){
+            nodesInLevel(level, currLevel+1, root->children.at(i), vec);
+        }
+    }
     
 //	void drawTree(Node<T>* curr, double segWidth, int j, double middlePoint){
 //		int divisionHeight = (HEIGHT) / (10 + numberOfLevels(0, &root));
