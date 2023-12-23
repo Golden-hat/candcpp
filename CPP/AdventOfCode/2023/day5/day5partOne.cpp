@@ -110,6 +110,7 @@ int main(){
                 for(int j = 0; j < vec->size(); j++){
                     t.addChildren(operation(vec->at(j)->data, array), vec->at(j));
                 }
+                delete(vec);    
             }
         }
     }
