@@ -61,7 +61,7 @@ int operation(int number, std::vector<std::string>* arr){
     int destination = std::stoi(arr->at(0));
     int range = std::stoi(arr->at(2));
 
-    if(number >= source && number <= source + diff){
+    if(number >= source && number <= source + range){
         return number-source + destination;
     }
     return number;
@@ -106,9 +106,9 @@ int main(){
             }
             if(array->size() != 0 && !isContained(input.at(0), '-')){
                 std::vector<Node<int>*>* vec = new std::vector<Node<int>*>;
-                vec = t.nodesInLevel(currentLevel - 1);   
+                vec = t.nodesInLevel(currentLevel);   
                 for(int j = 0; j < vec->size(); j++){
-                    t.addChildren(operation(vec->at(j)));
+                    t.addChildren(operation(vec->at(j)->data, array), vec->at(j));
                 }
             }
         }
