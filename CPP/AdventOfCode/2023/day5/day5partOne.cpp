@@ -50,8 +50,11 @@ std::vector<std::string>* stringToArray(std::string line, char a){
 
 std::vector<int>* saveSeeds(std::string line){
     std::vector<int>* seeds = new std::vector<int>;
-    for(int i = 1; i < line.length(); i++){
-        seeds->push_back(std::atoi(&line.at(i)));
+    std::vector<std::string>* arr = stringToArray(line, ' ');
+    printArr<std::string>(arr);
+    std::cout << std::endl;
+    for(int i = 1; i < arr->size(); i++){
+        seeds->push_back(std::stoi(arr->at(i)));
     }
     return seeds;
 }
@@ -85,36 +88,16 @@ int main(){
     std::string line;
     std::vector<int>* seeds;
     std::vector<std::string> input;
-    bool found = false;
 
     while(getline(file, line)){
         input.push_back(line);
         std::vector<std::string>* array = stringToArray(line, ' ');
-        if(!found && array->size() != 0 && array->at(0) == "seeds:"){
+        if(array->size() != 0 && array->at(0) == "seeds:"){
             seeds = saveSeeds(line);
         }
     }
     file.close();
      
-    for(int s = 0; s < seeds->size(); s++){
-        Tree<int> t (std::to_string(seeds->at(s)));
-        int currentLevel;
-        for(int i = 0; i < input.size(); i++){
-            std::vector<std::string>* array = stringToArray(input.at(i), ' ');
-            if(isContained(input.at(0), '-')){
-                currentLevel = whichLevel(input.at(0));
-            }
-            if(array->size() != 0 && !isContained(input.at(0), '-')){
-                std::vector<Node<int>*>* vec = new std::vector<Node<int>*>;
-                vec = t.nodesInLevel(currentLevel);   
-                for(int j = 0; j < vec->size(); j++){
-                    t.addChildren(operation(vec->at(j)->data, array), vec->at(j));
-                }
-                delete(vec);    
-            }
-        }
-    }
-
     std::cout << std::endl;
     return 0;
 } 

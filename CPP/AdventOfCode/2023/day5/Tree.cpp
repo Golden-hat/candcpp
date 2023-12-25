@@ -17,8 +17,9 @@ class Tree{
     public:
     std::string name;
     Node<T> root;
-    Tree(std::string name){
+    Tree(std::string name, int value){
         this->name = name;
+        this->root.data = value;
     }
 
     void addChildren(T data, Node<T>* parent){
