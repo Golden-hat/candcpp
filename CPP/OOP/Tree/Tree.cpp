@@ -1,14 +1,6 @@
 #include "Node.cpp"
-#include <bits/stdc++.h>
 #include <iostream>
-#include <SFML/Graphics.hpp>
-
-int HEIGHT = 800;
-int WIDTH = 1000;
-int nodeL = 10;
-
-sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Tree");
-sf::View View2(sf::FloatRect(0, 0, WIDTH, HEIGHT));
+#include <string>
 
 template<class T>
 class Tree{
@@ -40,77 +32,29 @@ class Tree{
         printf("max: %d\n", max);
 		return max;
 	}
-    
-	void drawTree(Node<T>* curr, double segWidth, int j, double middlePoint){
-		int divisionHeight = (HEIGHT) / (10 + numberOfLevels(0, &root));
+   
+    int numberOfLevels(){
+        return numberOfLevels(0, &root);
+    }
 
-        if(j == 0){
-            sf::RectangleShape node = sf::RectangleShape(sf::Vector2f(nodeL, nodeL));
-            node.setFillColor(sf::Color::White);
-
-            node.setPosition((WIDTH)/2, divisionHeight);
-            window.draw(node);
-            j++;
+	void drawTree(Node<T>* current, std::string margin){
+        bool found = false;
+        for(int j = margin.length()-1; j > 0; j--)
+        {
+            if(found) margin[j] = ' ';
+            if('|' == margin[j] && !found){
+                found = true;
+            }
         }
-
-        double divisionWidth = segWidth/2;
-        std::vector<double> middlePoints;
-        for(int i = 0; i < curr->children.size(); i++){
-		    double divisionWidth = (segWidth) / (curr->children.size());
-
-            sf::RectangleShape node = sf::RectangleShape(sf::Vector2f(nodeL, nodeL));
-            node.setFillColor(sf::Color::White);
-            double startingPoint = middlePoint - segWidth/2;
-            node.setPosition(startingPoint + divisionWidth*(i), divisionHeight*(j+1));
-            window.draw(node);
-
-            middlePoints.push_back(startingPoint + divisionWidth*(i));
-        }
-
-        j++;
-        for(int i = 0; i < curr->children.size(); i++){
-            drawTree(curr->children.at(i), divisionWidth, j, middlePoints.at(i));
+        for(int i = 0; i < current->children.size(); i++){
+            std::cout << margin << current->children.at(i)->data << std::endl;
+            drawTree(current->children.at(i), margin+"|--");
         }
 	}
 
-    void renderLoop(){
-        window.setView(View2);
-        while(window.isOpen())
-        {   window.clear();
-            sf::Event event;
-            while (window.pollEvent(event))
-            {
-                if (event.type == sf::Event::Closed){
-                    window.close();
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
-                    View2.zoom(1.1f);
-                    window.setView(View2);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
-                    View2.zoom(0.9f);
-                    window.setView(View2);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-                    View2.move(-25.f, 0);
-                    window.setView(View2);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-                    View2.move(25.f, 0);
-                    window.setView(View2);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-                    View2.move(0, -25.f);
-                    window.setView(View2);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-                    View2.move(0, 25.f);
-                    window.setView(View2);
-                }
-            }
-            drawTree(&root, WIDTH, 0, WIDTH/2);
-            window.display();
-        }
+    void drawTree(){
+        std::cout << root.data << std::endl;
+        drawTree(&root, "|--");
     }
 };
 
@@ -121,7 +65,19 @@ int main(){
     t.addChildren(3, t.root.children.at(0));
     t.addChildren(3, t.root.children.at(0));
     t.addChildren(3, t.root.children.at(0));
-    t.renderLoop();
+    t.addChildren(2, &t.root);
+    t.addChildren(6, &t.root);
+    t.addChildren(10, &t.root);
+    t.addChildren(24, &t.root);
 
-	std::cout << t.numberOfLevels(0, &t.root) << std::endl;
+    t.addChildren(3452, t.root.children.at(2));
+    t.addChildren(31, t.root.children.at(2));
+    t.addChildren(1233, t.root.children.at(2));
+
+    t.addChildren(1233, t.root.children.at(2)->children.at(0));
+    t.addChildren(11233, t.root.children.at(2)->children.at(0));
+    t.addChildren(12, t.root.children.at(2)->children.at(0)->children.at(0));
+
+    t.drawTree();
+    return 0;
 }
