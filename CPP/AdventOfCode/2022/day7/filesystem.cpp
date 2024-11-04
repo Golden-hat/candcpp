@@ -78,7 +78,6 @@ class filesystem{
         file.close();
     }
 
-
     void adv_tokenizer(std::string s, const char* del, std::string t[]){
         std::stringstream ss(s);
         std::string word;
